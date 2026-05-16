@@ -7,7 +7,7 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
 
 ## Purpose
 - สร้าง `seo-blog.config.yaml` ที่ root ของ content-project (generic + ต่อโปรเจค)
-- แนะนำสร้าง `.env` (ไม่สร้างไฟล์ที่มี secret ให้เอง — บอกผู้ใช้ใส่เอง)
+- สร้าง `.env` โครงเปล่า (ค่าว่าง ไม่มี secret) + กัน gitignore ให้ — ผู้ใช้แค่เติมค่า key เอง; ถ้ามี `.env` อยู่แล้วห้ามทับ
 - เช็ค tool readiness (Supabase required; DataForSEO/PSI optional)
 - ❌ ไม่หา topic ❌ ไม่เขียน ❌ ไม่ publish ❌ ไม่ commit secret
 
@@ -35,7 +35,11 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
    - 3.6 voice: `audience`, `formality`, `person`(สรรพนามแบรนด์), `preferred_words[]`, `banned_words[]`, `sample`(1-2 ประโยคน้ำเสียง)
 4. **เขียน config**: เอา `templates/seo-blog.config.yaml` เติมค่า (รวม voice) → write ที่ root ด้วย native Write tool
 4b. **สร้าง voice/style-notes.md**: ถ้ายังไม่มี → copy `templates/style-notes.md` ไป `voice/style-notes.md` (feedback loop ของ writer)
-5. **แนะนำ .env**: แสดง `templates/env.example` → บอกผู้ใช้สร้าง `.env` ใส่ `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (+ `DATAFORSEO_*`, `PSI_API_KEY` ถ้ามี). ย้ำ gitignored
+5. **สร้าง `.env` โครงเปล่า + กัน git**:
+   - **ถ้ามี `.env` อยู่แล้ว → ห้ามแตะ/ห้ามทับ** (อาจมี key จริงของผู้ใช้) แค่แจ้งว่ามีแล้ว
+   - ถ้ายังไม่มี → Write `.env` จาก `templates/env.example` (ค่าว่างทั้งหมด ไม่มี secret) เติม `SUPABASE_URL` จาก `supabase.project_ref` ให้ (`https://<ref>.supabase.co`) ที่เหลือเว้นว่าง
+   - เช็ค `.gitignore` ที่ root: ถ้าไม่มีบรรทัด `.env` → append `.env` ด้วย Edit tool (ถ้าไม่มีไฟล์ `.gitignore` → Write ใหม่ มี `.env`, `node_modules/`, `.cache/`)
+   - บอกผู้ใช้ "เปิด `.env` เติม `SUPABASE_SERVICE_ROLE_KEY` (+ `DATAFORSEO_*`/`PSI_API_KEY` ถ้ามี) — ไฟล์ถูก gitignore แล้ว ไม่หลุด repo"
 5b. **เช็ค deps ของ plugin**: ถ้า `${CLAUDE_PLUGIN_ROOT}/node_modules` ไม่มี → บอกผู้ใช้รัน `cd "${CLAUDE_PLUGIN_ROOT}" && npm install --omit=dev` (script ทุกตัวพึ่ง deps นี้ ไม่มี = รันไม่ได้)
 6. **Tool readiness**: รัน `lib/env-check.mjs --json --soft` (exit 0 เสมอ — รายงานอย่างเดียว ไม่ abort)
    - Supabase ขาด → 🔴 แจ้งว่า "ต้องสร้าง `.env` ใส่ key ก่อนรัน seo-blog-audit/publisher" (setup จบได้ ไม่ต้องรอ .env)
