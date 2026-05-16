@@ -11,7 +11,8 @@ description: Publish บทความลง Supabase ตรง (service-role u
 
 ## Prerequisite
 - `seo-blog.config.yaml` valid
-- มี draft `articles/<slug>.md`
+- มีโฟลเดอร์บทความ `articles/<NN>-<slug>/<NN>-<slug>.md`
+- (ถ้ามีรูป) ผู้ใช้วาง `cover.*`, `og.*`, `01.*`..`NN.*` ในโฟลเดอร์เดียวกันแล้ว
 - `.env`: `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` (required)
 
 ## Working Principles
@@ -19,16 +20,17 @@ description: Publish บทความลง Supabase ตรง (service-role u
 - gate `--block`: มี error → abort พิมพ์ rule + ค่า + วิธีแก้ → ชี้กลับ seo-blog-writer
 - `--dry-run` เสมอก่อน upsert จริง → ให้ผู้ใช้ยืนยัน
 - upsert `onConflict slug` = idempotent (รันซ้ำ id เดิม ไม่สร้างซ้ำ)
+- **รูป**: publish.mjs upload ทุกรูปในโฟลเดอร์บทความขึ้น Supabase Storage (`config.image.storage_bucket`, path `<slug>/<file>`, upsert) → `cover.*`→`cover_image`, `og.*`→`og_image`, แทน `![](NN.png)` ในเนื้อเป็น public URL อัตโนมัติ
 - service-role key อยู่ server-side script เท่านั้น ไม่เข้า log/แชร์
 
 ## Workflow
 1. **Banner**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/env-check.mjs --banner`. Supabase ขาด → หยุด
-2. **gate block**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/seo-gate.mjs articles/<slug>.md --block`
+2. **gate block**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/seo-gate.mjs articles/<NN>-<slug>/<NN>-<slug>.md --block`
    - exit 1 → แสดง error, ชี้กลับ seo-blog-writer, **จบ**
-3. **dry-run**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs articles/<slug>.md --dry-run` → แสดง row + warnings
-4. **ยืนยัน**: AskUserQuestion {publish จริง / แก้ก่อน}
-5. **upsert**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs articles/<slug>.md` → `{id,slug,warnings}`
-6. **verify**: แนะนำเช็ค row ใน Supabase + บทความขึ้น sitemap/route (ตามที่ audit ตรวจ)
+3. **dry-run**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs articles/<NN>-<slug>/<NN>-<slug>.md --dry-run` → แสดง row + `images_to_upload`
+4. **ยืนยัน**: AskUserQuestion {publish จริง / แก้ก่อน} — ถ้ายังไม่ใส่รูปแต่อยากมีรูป เตือนก่อน
+5. **upsert**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs articles/<NN>-<slug>/<NN>-<slug>.md` → upload รูป + `{id,slug,images,warnings}`
+6. **verify**: แนะนำเช็ค row + รูปใน Storage + บทความขึ้น sitemap/route
 7. ปิดท้าย `🔜 Next: run seo-blog-audit` (loop รอบถัดไป)
 
 ## Scripts

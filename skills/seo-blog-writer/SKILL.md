@@ -27,14 +27,16 @@ description: เขียนบทความ SEO ภาษาไทยจา�
 2. **โหลด topic + voice**: อ่าน research file / slot + `config.voice` + `voice/style-notes.md` (ถ้าไม่มีไฟล์ → เตือนให้รัน seo-blog-setup; ทำต่อด้วย voice จาก config)
 3. **เติม TBD**: ถ้า config `author.name`/`image.strategy` ว่าง → AskUserQuestion → Edit config
 4. **slug**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/slugify.mjs <convention> "<title-en/th>"`
-5. **เขียน frontmatter + body** จาก `templates/article.md`:
-   - frontmatter: slug, title_th, excerpt_th, category(whitelist), tags, author_name, seo_title(≤max), seo_description(min–max), og_image/cover ตาม strategy, status: draft
-   - body: 1×H1, heading เป็นชั้น, ไทย ≥ word_count_min, internal link ≥2 (≥1 pillar), humanize
-6. **save** `articles/<slug>.md` ด้วย Write tool
-7. **pre-gate**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/seo-gate.mjs articles/<slug>.md --warn`
-8. **loop แก้** จน error = 0 (warning โดยเฉพาะ `voice:` พิจารณาแก้)
-9. **review + feedback loop**: ให้ผู้ใช้รีวิวโทน → ถ้าผู้ใช้แก้/ติงเรื่องเสียง → append บรรทัดลง `voice/style-notes.md` ด้วย Edit tool (`- [วันที่] <ผิด> → <แก้เป็น> (slug)`) เพื่อรอบหน้าเรียนรู้
-10. ปิดท้าย `🔜 Next: run seo-blog-publisher`
+5. **เลขลำดับ**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/next-num.mjs` → ได้ `NN` (เช่น `03`) — โฟลเดอร์บทความ = `articles/<NN>-<slug>/`
+6. **เขียน frontmatter + body** จาก `templates/article.md`:
+   - frontmatter: slug, title_th, excerpt_th, category(whitelist), tags, author_name, seo_title(≤max), seo_description(min–max), status: draft
+   - **ไม่ต้องใส่ cover_image/og_image** — publisher จะ set จากไฟล์รูปในโฟลเดอร์
+   - body: 1×H1, heading เป็นชั้น, ไทย ≥ word_count_min, internal link ≥2 (≥1 pillar), humanize. รูป in-article อ้างชื่อไฟล์ relative `![alt](01.png)` (ยังไม่มีไฟล์ก็ใส่ placeholder ได้ publisher แทน URL ภายหลัง)
+7. **save** `articles/<NN>-<slug>/<NN>-<slug>.md` ด้วย Write tool (1 โฟลเดอร์ = 1 บทความ ผู้ใช้จะเอารูปมาวางที่นี่)
+8. **pre-gate**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/seo-gate.mjs articles/<NN>-<slug>/<NN>-<slug>.md --warn`
+9. **loop แก้** จน error = 0 (warning โดยเฉพาะ `voice:` พิจารณาแก้)
+10. **review + feedback loop**: ให้ผู้ใช้รีวิวโทน → ถ้าผู้ใช้แก้/ติงเรื่องเสียง → append บรรทัดลง `voice/style-notes.md` ด้วย Edit tool (`- [วันที่] <ผิด> → <แก้เป็น> (slug)`) เพื่อรอบหน้าเรียนรู้
+11. ปิดท้าย `🔜 Next: run seo-blog-image-prompt`
 
 ## Templates
 | file | ใช้ที่ |
@@ -46,7 +48,8 @@ description: เขียนบทความ SEO ภาษาไทยจา�
 |---|---|
 | `lib/env-check.mjs --banner` | 1 |
 | `lib/slugify.mjs` | 4 |
-| `seo-gate.mjs --warn` | 7 |
+| `lib/next-num.mjs` | 5 |
+| `seo-gate.mjs --warn` | 8 |
 
 ## Edge Cases
 - ไม่มี research/slot → หยุด ชี้ไป seo-blog-research/plan

@@ -1,6 +1,7 @@
 // Idempotent service-role upsert into Supabase `articles` (Option A).
 // SERVICE_ROLE_KEY lives ONLY in the project .env (gitignored). Never printed.
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { dirname, basename, extname } from 'node:path';
 import matter from 'gray-matter';
 import { createClient } from '@supabase/supabase-js';
 import { loadConfig } from './lib/config.mjs';
@@ -38,6 +39,38 @@ function rowFromFile(path, config) {
   return { row, fm, content };
 }
 
+const IMG_EXT = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif' };
+
+// Upload every image in the article folder to Supabase Storage → {filename: publicUrl}.
+async function uploadImages(folder, slug, sb, config) {
+  const bucket = config.image.storage_bucket;
+  const map = {};
+  if (!existsSync(folder)) return map;
+  const imgs = readdirSync(folder).filter((f) => IMG_EXT[extname(f).toLowerCase()]);
+  for (const f of imgs) {
+    const buf = readFileSync(`${folder}/${f}`);
+    const objectPath = `${slug}/${f}`;
+    const { error } = await sb.storage.from(bucket).upload(objectPath, buf, {
+      contentType: IMG_EXT[extname(f).toLowerCase()],
+      upsert: true,
+    });
+    if (error) throw new Error(`storage upload ${objectPath}: ${error.message}`);
+    map[f] = sb.storage.from(bucket).getPublicUrl(objectPath).data.publicUrl;
+  }
+  return map;
+}
+
+export function findByStem(map, stem) {
+  const k = Object.keys(map).find((f) => basename(f, extname(f)).toLowerCase() === stem);
+  return k ? map[k] : null;
+}
+
+// Rewrite relative image refs in markdown body to their uploaded public URLs.
+export function rewriteBodyImages(body, map) {
+  return body.replace(/!\[([^\]]*)\]\((\.\/)?([^)\/]+\.(?:png|jpe?g|webp|gif))\)/gi,
+    (m, alt, _dot, file) => (map[file] ? `![${alt}](${map[file]})` : m));
+}
+
 export async function publish(path, config, { dryRun = false } = {}) {
   const sb = client(config);
   const { row, fm, content } = rowFromFile(path, config);
@@ -56,7 +89,22 @@ export async function publish(path, config, { dryRun = false } = {}) {
     throw err;
   }
 
-  if (dryRun) return { dryRun: true, row, warnings: gate.warnings };
+  const folder = dirname(path);
+  const localImgs = existsSync(folder)
+    ? readdirSync(folder).filter((f) => IMG_EXT[extname(f).toLowerCase()])
+    : [];
+
+  if (dryRun) {
+    return { dryRun: true, row, images_to_upload: localImgs, warnings: gate.warnings };
+  }
+
+  // Upload images first, then map URLs into the row + body.
+  const imgMap = await uploadImages(folder, row.slug, sb, config);
+  const cover = findByStem(imgMap, 'cover');
+  const og = findByStem(imgMap, 'og');
+  if (cover && !row.cover_image) row.cover_image = cover;
+  if (og && !row.og_image) row.og_image = og;
+  if (Object.keys(imgMap).length) row.body_md_th = rewriteBodyImages(row.body_md_th, imgMap);
 
   const { data, error } = await sb
     .from(config.supabase.table)
@@ -64,7 +112,7 @@ export async function publish(path, config, { dryRun = false } = {}) {
     .select('id,slug')
     .single();
   if (error) throw new Error(error.message);
-  return { id: data.id, slug: data.slug, warnings: gate.warnings };
+  return { id: data.id, slug: data.slug, images: Object.keys(imgMap), warnings: gate.warnings };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
