@@ -47,11 +47,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   let cfg = {};
   try { cfg = (await import('./config.mjs')).loadConfig(); } catch { /* config optional for banner */ }
   const r = envCheck(cfg);
+  // --soft: print status แต่ exit 0 เสมอ (ใช้ตอน setup ที่ .env ยังไม่ถูกสร้าง)
+  const soft = process.argv.includes('--soft');
   if (process.argv.includes('--banner')) {
     console.log(banner(r));
-    process.exit(r.blocking ? 1 : 0);
+    process.exit(soft ? 0 : (r.blocking ? 1 : 0));
   }
   // --json (default): never echo secret values, only var names.
   console.log(JSON.stringify(r, null, 2));
-  process.exit(r.blocking ? 1 : 0);
+  process.exit(soft ? 0 : (r.blocking ? 1 : 0));
 }

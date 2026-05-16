@@ -16,7 +16,7 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
 - plugin ติดตั้งแล้ว (`${CLAUDE_PLUGIN_ROOT}` ใช้ได้)
 
 ## Working Principles
-- **Capability banner** ก่อนเริ่ม: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/env-check.mjs --banner`
+- **Capability banner** ก่อนเริ่ม: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/env-check.mjs --banner --soft` — setup เป็น skill เดียวที่ **ไม่ block ตอน Supabase ขาด** (หน้าที่มันคือสร้าง config + แนะนำ .env ก่อนจะมี .env ด้วยซ้ำ)
 - ถามผ่าน **AskUserQuestion** ทุกครั้ง ไม่เดาค่า
 - มี config อยู่แล้ว → ถามก่อนว่า update / keep (ไม่ทับเงียบ)
 - 3 decisions ที่ค้าง (author/image/slug) ถาม runtime → เขียนลง config; ถ้าผู้ใช้ยังไม่ตัดสิน → ปล่อย TBD (`author.name:""`) ให้ writer ถามภายหลัง
@@ -24,7 +24,7 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
 - optional tool ขาด → ถามว่าใส่ตอนนี้ / degrade; degrade → เขียน `dataforseo.enabled:false` หรือ `audit.check_cwv:false`
 
 ## Workflow
-1. **Banner**: รัน env-check `--banner`, แสดงผล
+1. **Banner**: รัน `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/env-check.mjs --banner --soft` — **`--soft` exit 0 เสมอ**. ตอน setup ยังไม่มี `.env` เป็นเรื่องปกติ 🔴 Supabase ที่นี่ = แค่บอกสถานะ **ห้ามหยุด** ทำ Step ต่อไปทันที
 2. **ตรวจ config เดิม**: ถ้ามี `seo-blog.config.yaml` → AskUserQuestion {update / keep}
 3. **เก็บค่าโครงสร้าง** (AskUserQuestion ทีละกลุ่ม):
    - 3.1 site: `base_url`, `article_path_prefix`
@@ -37,8 +37,8 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
 4b. **สร้าง voice/style-notes.md**: ถ้ายังไม่มี → copy `templates/style-notes.md` ไป `voice/style-notes.md` (feedback loop ของ writer)
 5. **แนะนำ .env**: แสดง `templates/env.example` → บอกผู้ใช้สร้าง `.env` ใส่ `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (+ `DATAFORSEO_*`, `PSI_API_KEY` ถ้ามี). ย้ำ gitignored
 5b. **เช็ค deps ของ plugin**: ถ้า `${CLAUDE_PLUGIN_ROOT}/node_modules` ไม่มี → บอกผู้ใช้รัน `cd "${CLAUDE_PLUGIN_ROOT}" && npm install --omit=dev` (script ทุกตัวพึ่ง deps นี้ ไม่มี = รันไม่ได้)
-6. **Tool readiness**: รัน `lib/env-check.mjs --json`
-   - Supabase ขาด → 🔴 บอกว่าต้องใส่ก่อนไป skill ถัดไป
+6. **Tool readiness**: รัน `lib/env-check.mjs --json --soft` (exit 0 เสมอ — รายงานอย่างเดียว ไม่ abort)
+   - Supabase ขาด → 🔴 แจ้งว่า "ต้องสร้าง `.env` ใส่ key ก่อนรัน seo-blog-audit/publisher" (setup จบได้ ไม่ต้องรอ .env)
    - DataForSEO/PSI ขาด → AskUserQuestion {ใส่ตอนนี้ / degrade ไปก่อน}; degrade → เขียน flag ลง config (Edit tool)
 6b. **เช็ค Storage bucket**: ถ้า Supabase พร้อม → รัน `lib/storage-check.mjs`
    - ไม่พบ bucket → 🔴 แสดง bucket ที่มี, AskUserQuestion {แก้ `image.storage_bucket` ให้ตรง bucket เดิม / จะสร้าง bucket ใหม่เอง} แล้ว Edit config ตามเลือก
