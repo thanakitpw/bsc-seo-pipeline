@@ -36,9 +36,13 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
 4. **เขียน config**: เอา `templates/seo-blog.config.yaml` เติมค่า (รวม voice) → write ที่ root ด้วย native Write tool
 4b. **สร้าง voice/style-notes.md**: ถ้ายังไม่มี → copy `templates/style-notes.md` ไป `voice/style-notes.md` (feedback loop ของ writer)
 5. **แนะนำ .env**: แสดง `templates/env.example` → บอกผู้ใช้สร้าง `.env` ใส่ `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (+ `DATAFORSEO_*`, `PSI_API_KEY` ถ้ามี). ย้ำ gitignored
+5b. **เช็ค deps ของ plugin**: ถ้า `${CLAUDE_PLUGIN_ROOT}/node_modules` ไม่มี → บอกผู้ใช้รัน `cd "${CLAUDE_PLUGIN_ROOT}" && npm install --omit=dev` (script ทุกตัวพึ่ง deps นี้ ไม่มี = รันไม่ได้)
 6. **Tool readiness**: รัน `lib/env-check.mjs --json`
    - Supabase ขาด → 🔴 บอกว่าต้องใส่ก่อนไป skill ถัดไป
    - DataForSEO/PSI ขาด → AskUserQuestion {ใส่ตอนนี้ / degrade ไปก่อน}; degrade → เขียน flag ลง config (Edit tool)
+6b. **เช็ค Storage bucket**: ถ้า Supabase พร้อม → รัน `lib/storage-check.mjs`
+   - ไม่พบ bucket → 🔴 แสดง bucket ที่มี, AskUserQuestion {แก้ `image.storage_bucket` ให้ตรง bucket เดิม / จะสร้าง bucket ใหม่เอง} แล้ว Edit config ตามเลือก
+   - Supabase ยังไม่พร้อม → ข้าม (เตือนว่าต้องเช็คก่อน publish)
 7. **Validate**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/config.mjs --validate` → สรุป ok/issues
 8. ปิดท้ายสรุป + `🔜 Next: run seo-blog-audit`
 
@@ -53,6 +57,7 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
 | script | step |
 |---|---|
 | `lib/env-check.mjs --banner / --json` | 1, 6 |
+| `lib/storage-check.mjs` | 6b |
 | `lib/config.mjs --validate` | 7 |
 
 ## Edge Cases

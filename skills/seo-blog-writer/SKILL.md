@@ -26,7 +26,7 @@ description: เขียนบทความ SEO ภาษาไทยจา�
 1. **Banner**
 2. **โหลด topic + voice**: อ่าน research file / slot + `config.voice` + `voice/style-notes.md` (ถ้าไม่มีไฟล์ → เตือนให้รัน seo-blog-setup; ทำต่อด้วย voice จาก config)
 3. **เติม TBD**: ถ้า config `author.name`/`image.strategy` ว่าง → AskUserQuestion → Edit config
-4. **slug**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/slugify.mjs <convention> "<title-en/th>"`
+4. **slug**: ถ้า `slug.convention=kebab-en` → คิด **วลีอังกฤษสั้น** จากหัวข้อ (เช่น "seo tips for sme") ห้ามป้อนหัวข้อไทยตรงๆ (อักษรไทยจะถูกตัดทิ้ง); ถ้า `=thai` → ป้อนหัวข้อไทยได้. รัน `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/slugify.mjs <convention> "<phrase>"` — ถ้าสคริปต์ exit 1/เตือน ให้แก้ input แล้วรันใหม่ (อย่าใช้ slug ที่ไม่ผ่าน)
 5. **เลขลำดับ**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/next-num.mjs` → ได้ `NN` (เช่น `03`) — โฟลเดอร์บทความ = `articles/<NN>-<slug>/`
 6. **เขียน frontmatter + body** จาก `templates/article.md`:
    - frontmatter: slug, title_th, excerpt_th, category(whitelist), tags, author_name, seo_title(≤max), seo_description(min–max), status: draft

@@ -18,7 +18,7 @@ setup → audit → research → plan → writer → image-prompt → (ใส่
 ผู้ใช้วางไฟล์รูป (`cover.png`/`og.png`/`01.png`..) ลงโฟลเดอร์บทความเอง ระหว่าง image-prompt → publisher
 
 ## shared/scripts
-`seo-gate.mjs` (pure runGate + CLI) · `publish.mjs` (service-role upsert + Storage upload) · `dataforseo.mjs` · `audit.mjs` (reuse runGate) · `psi.mjs` · `lib/{config,md,slugify,http,env-check,next-num}.mjs`
+`seo-gate.mjs` (pure runGate + CLI) · `publish.mjs` (service-role upsert + Storage upload) · `dataforseo.mjs` · `audit.mjs` (reuse runGate) · `psi.mjs` · `lib/{config,md,slugify,http,env-check,next-num,storage-check}.mjs`
 
 ## ติดตั้งในโปรเจคอื่น
 ```

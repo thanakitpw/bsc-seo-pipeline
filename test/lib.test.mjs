@@ -17,6 +17,14 @@ test('slugify thai keeps Thai, drops spaces', () => {
   assert.ok(s.length > 0);
 });
 
+test('isValidSlug thai: valid Thai slug passes, no crash', () => {
+  const s = slugify('คู่มือ seo สำหรับ sme', 'thai');
+  assert.equal(isValidSlug(s, 'thai'), true);
+  assert.equal(isValidSlug('คู่มือ seo', 'thai'), false); // has space
+  assert.equal(isValidSlug('seo-สำหรับ-sme', 'thai'), true);
+  assert.equal(isValidSlug('bad/slug', 'thai'), false);
+});
+
 test('md headings + h1Count', () => {
   const body = '# A\n## B\n### C';
   assert.equal(h1Count(body), 1);

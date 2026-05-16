@@ -25,7 +25,7 @@ const schema = z.object({
     strategy: z.enum(['none', 'default-og', 'html-shot', 'ai']).default('none'),
     og_image_base_url: z.string().default(''),
     in_article_max: z.number().int().default(2),
-    storage_bucket: z.string().default('article-images'),
+    storage_bucket: z.string().default('blog-covers'),
   }).default({}),
   taxonomy: z.object({ whitelist: z.array(z.string()).default([]) }).default({}),
   internal_links: z.object({

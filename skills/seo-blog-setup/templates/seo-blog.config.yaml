@@ -20,7 +20,7 @@ image:
   strategy: "none"             # none | default-og | html-shot | ai
   og_image_base_url: ""
   in_article_max: 2            # จำนวนรูปในเนื้อสูงสุด (0 = ปิด in-article)
-  storage_bucket: "article-images"  # Supabase Storage bucket ที่ publisher upload รูปขึ้น
+  storage_bucket: "blog-covers"     # Supabase Storage bucket ที่ publisher upload รูปขึ้น (ต้องมี bucket นี้อยู่แล้ว)
 
 taxonomy:
   whitelist: []                # e.g. ["Digital Marketing", "SEO", "Paid Ads"]

@@ -8,7 +8,7 @@ export function slugify(input, convention = 'kebab-en') {
   if (convention === 'thai') {
     return s
       .replace(/\s+/g, '-')
-      .replace(/[^\p{L}\p{N}-]/gu, '')
+      .replace(/[^\p{L}\p{N}\p{M}-]/gu, '')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '')
       .toLowerCase();
@@ -27,12 +27,25 @@ export const KEBAB_EN_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export function isValidSlug(slug, convention = 'kebab-en') {
   if (!slug) return false;
   if (convention === 'thai') {
-    return !/\s/.test(slug) && slug === encodeURI(slug).replace(/%[0-9A-F]{2}/g, (m) => decodeURIComponent(m));
+    // ไทย/ตัวเลข, คั่นด้วย '-', ไม่มี space/อักขระพิเศษ (URL-safe หลัง encode)
+    return /^[\p{L}\p{N}\p{M}]+(?:-[\p{L}\p{N}\p{M}]+)*$/u.test(slug);
   }
   return KEBAB_EN_RE.test(slug);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const [, , conv, ...rest] = process.argv;
-  console.log(slugify(rest.join(' '), conv || 'kebab-en'));
+  const input = rest.join(' ');
+  const convention = conv || 'kebab-en';
+  const out = slugify(input, convention);
+  // Guard: kebab-en fed a Thai phrase drops Thai chars → poor slug.
+  if (convention === 'kebab-en' && /[฀-๿]/.test(input)) {
+    console.error('🔴 kebab-en: input มีอักษรไทย (จะถูกตัดทิ้งได้ slug แย่) — ป้อน "วลีอังกฤษ" เช่น "seo tips for sme" หรือใช้ convention: thai');
+    process.exit(1);
+  }
+  if (!out || !isValidSlug(out, convention)) {
+    console.error(`🔴 slug ที่ได้ ("${out}") ไม่ผ่าน convention ${convention} — แก้ input`);
+    process.exit(1);
+  }
+  console.log(out);
 }
