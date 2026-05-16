@@ -1,0 +1,61 @@
+# seo-blog.config.yaml — per-project config (commit ได้, ไม่มี secret)
+# secret ทั้งหมดอยู่ใน .env (gitignored). ${VAR} จะถูก resolve จาก .env
+
+site:
+  base_url: ""                 # e.g. https://www.bestsolutionscorp.com
+  article_path_prefix: "/blog/" # path บทความบนเว็บจริง
+
+supabase:
+  url: "${SUPABASE_URL}"
+  project_ref: ""              # e.g. dhftyjnzqkyocfhtmjet
+  table: "articles"
+
+slug:
+  convention: "kebab-en"       # kebab-en | thai
+
+author:
+  name: ""                     # "" = TBD (writer จะถามตอน runtime) | e.g. "ทีม Best Solutions"
+
+image:
+  strategy: "none"             # none | default-og | html-shot | ai
+  og_image_base_url: ""
+
+taxonomy:
+  whitelist: []                # e.g. ["Digital Marketing", "SEO", "Paid Ads"]
+
+internal_links:
+  pillars: []                  # e.g. ["/services/seo", "/services/paid-ads", "/contact"]
+  min_total: 2
+  min_pillar: 1
+
+seo_limits:                    # ห้ามหลวมกว่า data contract
+  seo_title_max: 43
+  seo_description_min: 70
+  seo_description_max: 160
+  word_count_min: 600
+
+dataforseo:
+  location_code: 2764          # 2764 = Thailand
+  language_code: "th"
+  enabled: true                # false = ตั้งใจ degrade เป็น WebSearch
+
+audit:
+  check_cwv: true              # false = ข้าม PSI/CWV
+  cwv_strategy: "mobile"       # mobile | desktop
+  crawl_max: 50
+
+voice:
+  audience: ""                 # e.g. "เจ้าของธุรกิจ SME ที่ไม่สาย tech"
+  formality: "neutral"         # formal | neutral | casual
+  person: ""                   # สรรพนามแบรนด์ e.g. "เรา" / "ทีมงาน"
+  preferred_words: []          # e.g. ["ลูกค้า", "ผลลัพธ์จริง"]
+  banned_words: []             # gate เตือนถ้าเจอ e.g. ["อาทิตย์", "555", "ปัง"]
+  sample: ""                   # 1-2 ประโยคตัวอย่างน้ำเสียงแบรนด์
+  style_notes_path: "voice/style-notes.md"  # feedback loop (สะสมจากการแก้)
+
+gsc:
+  property: ""                 # e.g. sc-domain:bestsolutionscorp.com (phase หลัง)
+
+cannibalization:
+  enabled: true
+  title_similarity_threshold: 0.85
