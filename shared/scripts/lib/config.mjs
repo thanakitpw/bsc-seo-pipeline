@@ -26,6 +26,8 @@ const schema = z.object({
     og_image_base_url: z.string().default(''),
     in_article_max: z.number().int().default(2),
     storage_bucket: z.string().default('blog-covers'),
+    format: z.enum(['webp', 'original']).default('webp'), // webp = แปลงก่อน upload
+    convert: z.boolean().default(true),                   // false = ไม่แปลง ใช้ไฟล์เดิม
     brand: z.object({
       primary: z.string().default(''),     // hex สีหลัก CI
       secondary: z.string().default(''),

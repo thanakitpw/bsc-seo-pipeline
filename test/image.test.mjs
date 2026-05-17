@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { nextNum, pad } from '../shared/scripts/lib/next-num.mjs';
-import { findByStem, rewriteBodyImages } from '../shared/scripts/publish.mjs';
+import { findByStem, rewriteBodyImages, imageRole, seoObjectName } from '../shared/scripts/publish.mjs';
 
 let dir;
 before(() => {
@@ -33,6 +33,20 @@ test('findByStem matches case-insensitively, ignores ext', () => {
   assert.equal(findByStem(map, 'cover'), 'u/cover');
   assert.equal(findByStem(map, 'og'), 'u/og');
   assert.equal(findByStem(map, 'missing'), null);
+});
+
+test('imageRole detects cover/og/in-article; unknown → assumed cover', () => {
+  assert.deepEqual(imageRole('cover.png'), { role: 'cover' });
+  assert.deepEqual(imageRole('OG.jpg'), { role: 'og' });
+  assert.deepEqual(imageRole('01.webp'), { role: 'in-article', idx: 1 });
+  assert.deepEqual(imageRole('12.png'), { role: 'in-article', idx: 12 });
+  assert.deepEqual(imageRole('01-what-is-seo-for-sme.png'), { role: 'cover', assumed: true });
+});
+
+test('seoObjectName builds slug-keyworded names', () => {
+  assert.equal(seoObjectName('seo-for-sme', 'cover', undefined, '.webp'), 'seo-for-sme-cover.webp');
+  assert.equal(seoObjectName('seo-for-sme', 'og', undefined, '.webp'), 'seo-for-sme-og.webp');
+  assert.equal(seoObjectName('seo-for-sme', 'in-article', 3, '.webp'), 'seo-for-sme-03.webp');
 });
 
 test('rewriteBodyImages swaps relative refs to public URLs', () => {

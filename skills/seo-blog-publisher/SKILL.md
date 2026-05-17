@@ -20,7 +20,9 @@ description: Publish บทความลง Supabase ตรง (service-role u
 - gate `--block`: มี error → abort พิมพ์ rule + ค่า + วิธีแก้ → ชี้กลับ seo-blog-writer
 - `--dry-run` เสมอก่อน upsert จริง → ให้ผู้ใช้ยืนยัน
 - upsert `onConflict slug` = idempotent (รันซ้ำ id เดิม ไม่สร้างซ้ำ)
-- **รูป**: publish.mjs upload ทุกรูปในโฟลเดอร์บทความขึ้น Supabase Storage (`config.image.storage_bucket`, path `<slug>/<file>`, upsert) → `cover.*`→`cover_image`, `og.*`→`og_image`, แทน `![](NN.png)` ในเนื้อเป็น public URL อัตโนมัติ
+- **รูป (อัตโนมัติใน publish.mjs)**: ทุกรูปในโฟลเดอร์ → แปลง **webp** (ถ้า `image.convert` + มี sharp) → **rename เป็นชื่อ SEO** `<slug>-cover.webp` / `<slug>-og.webp` / `<slug>-NN.webp` → upload `config.image.storage_bucket` path `<slug>/...` (upsert) → set `cover_image`/`og_image` (og ไม่มี → ใช้ cover แทน) → แทน `![](ไฟล์)` ในเนื้อเป็น public URL
+- **role จากชื่อไฟล์**: `cover.*`→cover · `og.*`→og · `01.*`/`02.*`→in-article · ชื่ออื่น (เช่นตั้งตามบทความ) → ถือเป็น cover + เตือนให้ตั้งชื่อ role ให้ชัด
+- alt text รูปในเนื้อ = ข้อความใน `![alt](..)` ที่ writer/ผู้ใช้ใส่ (สำคัญต่อ SEO/a11y — ให้สื่อภาพจริง)
 - service-role key อยู่ server-side script เท่านั้น ไม่เข้า log/แชร์
 
 ## Workflow

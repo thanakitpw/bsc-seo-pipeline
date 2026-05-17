@@ -21,6 +21,8 @@ image:
   og_image_base_url: ""
   in_article_max: 2            # จำนวนรูปในเนื้อสูงสุด (0 = ปิด in-article)
   storage_bucket: "blog-covers"     # Supabase Storage bucket ที่ publisher upload รูปขึ้น (ต้องมี bucket นี้อยู่แล้ว)
+  format: "webp"               # webp = แปลงเป็น webp ก่อน upload (เบา+SEO) | original
+  convert: true                # false = ไม่แปลง ใช้ไฟล์เดิม (ต้องมี sharp ติดตั้ง)
   brand:                       # CI — image-prompt ฉีดเข้าทุก prompt (ว่าง = generic ไม่บังคับ)
     primary: ""                # e.g. "#1A56DB"
     secondary: ""              # e.g. "#F59E0B"

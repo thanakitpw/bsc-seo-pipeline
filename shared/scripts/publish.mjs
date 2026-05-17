@@ -41,23 +41,57 @@ function rowFromFile(path, config) {
 
 const IMG_EXT = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif' };
 
-// Upload every image in the article folder to Supabase Storage → {filename: publicUrl}.
+// pure: role ของไฟล์รูปจากชื่อ (cover/og/in-article) — ชื่ออื่น = ถือเป็น cover
+export function imageRole(file) {
+  const stem = basename(file, extname(file)).toLowerCase();
+  if (stem === 'cover') return { role: 'cover' };
+  if (stem === 'og') return { role: 'og' };
+  const n = stem.match(/^(\d{1,3})$/);
+  if (n) return { role: 'in-article', idx: parseInt(n[1], 10) };
+  return { role: 'cover', assumed: true };
+}
+
+// pure: ชื่อ object บน Storage แบบ SEO (slug-รวม-keyword + role, ตัวเล็ก, ขีดกลาง)
+export function seoObjectName(slug, role, idx, ext) {
+  if (role === 'og') return `${slug}-og${ext}`;
+  if (role === 'in-article') return `${slug}-${String(idx).padStart(2, '0')}${ext}`;
+  return `${slug}-cover${ext}`;
+}
+
+async function loadSharp() {
+  try { return (await import('sharp')).default; } catch { return null; }
+}
+
+// Upload + (optional) webp convert + SEO rename → {byFile, cover, og, inArticle, warnings}
 async function uploadImages(folder, slug, sb, config) {
   const bucket = config.image.storage_bucket;
-  const map = {};
-  if (!existsSync(folder)) return map;
+  const out = { byFile: {}, cover: null, og: null, inArticle: [], warnings: [] };
+  if (!existsSync(folder)) return out;
   const imgs = readdirSync(folder).filter((f) => IMG_EXT[extname(f).toLowerCase()]);
-  for (const f of imgs) {
-    const buf = readFileSync(`${folder}/${f}`);
-    const objectPath = `${slug}/${f}`;
-    const { error } = await sb.storage.from(bucket).upload(objectPath, buf, {
-      contentType: IMG_EXT[extname(f).toLowerCase()],
-      upsert: true,
-    });
-    if (error) throw new Error(`storage upload ${objectPath}: ${error.message}`);
-    map[f] = sb.storage.from(bucket).getPublicUrl(objectPath).data.publicUrl;
+  const wantWebp = config.image.convert !== false && (config.image.format || 'webp') === 'webp';
+  const sharp = wantWebp ? await loadSharp() : null;
+  if (wantWebp && !sharp) out.warnings.push('image.convert=true แต่ไม่พบ sharp — อัปโหลดไฟล์เดิม (รัน `npm install` ใน plugin เพื่อแปลง webp)');
+  let coverDone = false;
+  for (const f of imgs.sort()) {
+    let buf = readFileSync(`${folder}/${f}`);
+    let ext = extname(f).toLowerCase();
+    let ct = IMG_EXT[ext];
+    if (sharp && ext !== '.webp' && ext !== '.gif') {
+      buf = await sharp(buf).webp({ quality: 82 }).toBuffer();
+      ext = '.webp'; ct = 'image/webp';
+    }
+    const r = imageRole(f);
+    if (r.role === 'cover' && coverDone) { out.warnings.push(`"${f}" ชื่อไม่ชัดและมี cover แล้ว — ข้าม (ตั้งชื่อ cover.* / og.* / 01.*)`); continue; }
+    const obj = `${slug}/${seoObjectName(slug, r.role, r.idx, ext)}`;
+    const { error } = await sb.storage.from(bucket).upload(obj, buf, { contentType: ct, upsert: true });
+    if (error) throw new Error(`storage upload ${obj}: ${error.message}`);
+    const url = sb.storage.from(bucket).getPublicUrl(obj).data.publicUrl;
+    out.byFile[f] = url;
+    if (r.role === 'cover') { out.cover = url; coverDone = true; if (r.assumed) out.warnings.push(`"${f}" ไม่มี role ชัด → ใช้เป็น cover`); }
+    else if (r.role === 'og') out.og = url;
+    else out.inArticle.push({ idx: r.idx, url });
   }
-  return map;
+  return out;
 }
 
 export function findByStem(map, stem) {
@@ -98,13 +132,13 @@ export async function publish(path, config, { dryRun = false } = {}) {
     return { dryRun: true, row, images_to_upload: localImgs, warnings: gate.warnings };
   }
 
-  // Upload images first, then map URLs into the row + body.
-  const imgMap = await uploadImages(folder, row.slug, sb, config);
-  const cover = findByStem(imgMap, 'cover');
-  const og = findByStem(imgMap, 'og');
-  if (cover && !row.cover_image) row.cover_image = cover;
-  if (og && !row.og_image) row.og_image = og;
-  if (Object.keys(imgMap).length) row.body_md_th = rewriteBodyImages(row.body_md_th, imgMap);
+  // Upload (+webp+SEO rename) then map URLs into the row + body.
+  const up = await uploadImages(folder, row.slug, sb, config);
+  if (up.cover && !row.cover_image) row.cover_image = up.cover;
+  if (up.og && !row.og_image) row.og_image = up.og;
+  if (!row.og_image && up.cover) row.og_image = up.cover; // og ไม่มี → ใช้ cover แทน
+  if (Object.keys(up.byFile).length) row.body_md_th = rewriteBodyImages(row.body_md_th, up.byFile);
+  gate.warnings.push(...up.warnings);
 
   const { data, error } = await sb
     .from(config.supabase.table)
@@ -112,7 +146,7 @@ export async function publish(path, config, { dryRun = false } = {}) {
     .select('id,slug')
     .single();
   if (error) throw new Error(error.message);
-  return { id: data.id, slug: data.slug, images: Object.keys(imgMap), warnings: gate.warnings };
+  return { id: data.id, slug: data.slug, images: Object.keys(up.byFile), warnings: gate.warnings };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
