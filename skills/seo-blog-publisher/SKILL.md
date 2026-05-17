@@ -19,6 +19,7 @@ description: Publish บทความลง Supabase ตรง (service-role u
 - **Capability banner** ก่อนเริ่ม — Supabase ขาด → หยุด บอกชื่อ var ที่ต้องใส่ **ไม่ print ค่า key**
 - gate `--block`: มี error → abort พิมพ์ rule + ค่า + วิธีแก้ → ชี้กลับ seo-blog-writer
 - `--dry-run` เสมอก่อน upsert จริง → ให้ผู้ใช้ยืนยัน
+- **auto-style เฉพาะมี confirm + เขียนกลับไฟล์** — ห้ามแก้เนื้อหาเงียบก่อน upsert (publish ต้องเป็นสิ่งที่ผู้ใช้เห็น + idempotent); จัดแค่รูปแบบ/เน้น ไม่แตะข้อเท็จจริง/ตัวเลข/ลิงก์
 - upsert `onConflict slug` = idempotent (รันซ้ำ id เดิม ไม่สร้างซ้ำ)
 - **รูป (อัตโนมัติใน publish.mjs)**: ทุกรูปในโฟลเดอร์ → แปลง **webp** (ถ้า `image.convert` + มี sharp) → **rename เป็นชื่อ SEO** `<slug>-cover.webp` / `<slug>-og.webp` / `<slug>-NN.webp` → upload `config.image.storage_bucket` path `<slug>/...` (upsert) → set `cover_image`/`og_image` (og ไม่มี → ใช้ cover แทน) → แทน `![](ไฟล์)` ในเนื้อเป็น public URL
 - **role จากชื่อไฟล์**: `cover.*`→cover · `og.*`→og · `01.*`/`02.*`→in-article · ชื่ออื่น → ถือเป็น cover + เตือน
@@ -31,6 +32,12 @@ description: Publish บทความลง Supabase ตรง (service-role u
 1. **Banner**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/env-check.mjs --banner`. Supabase ขาด → หยุด
 2. **gate block**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/seo-gate.mjs articles/<NN>-<slug>/<NN>-<slug>.md --block`
    - exit 1 → แสดง error, ชี้กลับ seo-blog-writer, **จบ**
+2b. **Auto-style + confirm** (เมื่อมี formatting/voice warning): รัน `seo-gate.mjs ... --warn --json` → ถ้ามี warning กลุ่ม `formatting:`/`voice:`
+   - Claude จัดสไตล์ในไฟล์บทความ ตาม `${CLAUDE_PLUGIN_ROOT}/skills/seo-blog-writer/references/structure-th.md`: แตกย่อหน้าสั้น 1–3 ประโยค, ใส่ bullet ให้ชุดที่ทำเป็นข้อได้, **bold** คำสำคัญพอประมาณ, callout `>`/💡, ลบ markdown table → H3+bullet, ลบ `==hl==`/`<mark>`/HTML/สี — **ไม่แตะสาระ/ข้อเท็จจริง เปลี่ยนแค่รูปแบบ+เน้น**
+   - สรุปเป็นข้อ ๆ ว่าจัดอะไรไปบ้าง → **AskUserQuestion**: `ใช้ฉบับจัดสไตล์` / `publish ตามต้นฉบับ` / `กลับไปแก้เอง (จบ)`
+   - เลือก "ใช้ฉบับจัดสไตล์" → Write ทับไฟล์เดิม → รัน `seo-gate.mjs --block` ซ้ำ (ต้องผ่าน) → ไปต่อ
+   - เขียนกลับไฟล์ = source เดียว รัน publish ซ้ำได้ idempotent (ฉบับจัดสไตล์เป็นตัวจริง)
+   - ไม่มี warning → ข้าม 2b
 3. **dry-run**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs articles/<NN>-<slug>/<NN>-<slug>.md --dry-run` → แสดง row + `images_to_upload`
 4. **ยืนยัน**: AskUserQuestion {publish จริง / แก้ก่อน} — ถ้ายังไม่ใส่รูปแต่อยากมีรูป เตือนก่อน
 5. **upsert**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs articles/<NN>-<slug>/<NN>-<slug>.md` → upload รูป + `{id,slug,images,warnings}`
