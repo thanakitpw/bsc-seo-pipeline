@@ -38,6 +38,16 @@ export function longestParagraphChars(body) {
   return max;
 }
 
+// จำนวนย่อหน้า prose (บล็อกคั่นด้วยบรรทัดว่าง ที่ไม่ใช่ heading/list/code/quote/table)
+export function paragraphCount(body) {
+  return body
+    .replace(/```[\s\S]*?```/g, '')
+    .split(/\n\s*\n/)
+    .map((b) => b.trim())
+    .filter((b) => b && !/^#{1,6}\s/.test(b) && !/^\s*([-*+]|\d+\.|>|\|)/.test(b))
+    .length;
+}
+
 export function h1Count(body) {
   return headings(body).filter((h) => h.level === 1).length;
 }

@@ -90,6 +90,13 @@ test('no formatting warn when list present', () => {
   assert.ok(!r.warnings.some((w) => w.includes('bullet/numbered list')));
 });
 
+test('warn: too few paragraph breaks (wall of text)', () => {
+  const body = '# หัว\n\n[a](/services/seo) [b](/contact) ' + 'ประโยคยาวมาก '.repeat(120);
+  const r = runGate({ frontmatter: goodFm, body, config: cfg() });
+  assert.ok(r.warnings.some((w) => w.includes('แตกย่อหน้าน้อยไป')));
+  assert.deepEqual(r.errors, []);
+});
+
 test('warn: voice banned word', () => {
   const body = '# หัว\n[a](/services/seo) [b](/contact) เนื้อหา 555 ' + 'คำ '.repeat(60);
   const r = runGate({ frontmatter: goodFm, body, config: cfg() });

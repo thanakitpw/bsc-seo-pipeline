@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import matter from 'gray-matter';
 import { loadConfig } from './lib/config.mjs';
-import { h1Count, headingOrderViolation, links, wordCount, similarity, hasList, longestParagraphChars } from './lib/md.mjs';
+import { h1Count, headingOrderViolation, links, wordCount, similarity, hasList, longestParagraphChars, paragraphCount } from './lib/md.mjs';
 import { isValidSlug } from './lib/slugify.mjs';
 
 /**
@@ -85,6 +85,11 @@ export function runGate({ frontmatter = {}, body = '', config, existingSlugs = [
   if (!hasList(body)) warnings.push('formatting: ไม่มี bullet/numbered list เลย — เพิ่มลิสต์ให้สแกนง่าย');
   const longPara = longestParagraphChars(body);
   if (longPara > 700) warnings.push(`formatting: ย่อหน้ายาวเกิน (~${longPara} ตัวอักษร) — ตัดเป็นย่อหน้าสั้น/ลิสต์`);
+  const paras = paragraphCount(body);
+  const expectPara = Math.floor(wc / 120); // ~1 ย่อหน้า/120 คำ
+  if (wc >= 250 && paras < Math.max(3, expectPara)) {
+    warnings.push(`formatting: แตกย่อหน้าน้อยไป (${paras} ย่อหน้า/~${wc} คำ) — เว้นบรรทัดแยกย่อหน้า แต่ละแนวคิด 1 ย่อหน้า`);
+  }
 
   // voice / AI-pattern (warn-only — โทนเป็น subjective ไม่ hard-block)
   const voice = config.voice || {};

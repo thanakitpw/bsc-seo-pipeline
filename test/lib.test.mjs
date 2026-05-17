@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { slugify, isValidSlug, KEBAB_EN_RE } from '../shared/scripts/lib/slugify.mjs';
-import { h1Count, headingOrderViolation, links, wordCount, similarity, headings, hasList, longestParagraphChars } from '../shared/scripts/lib/md.mjs';
+import { h1Count, headingOrderViolation, links, wordCount, similarity, headings, hasList, longestParagraphChars, paragraphCount } from '../shared/scripts/lib/md.mjs';
 import { envCheck } from '../shared/scripts/lib/env-check.mjs';
 import { parseImgMeta } from '../shared/scripts/lib/img-size.mjs';
 
@@ -60,6 +60,12 @@ test('longestParagraphChars ignores headings/lists/code', () => {
   assert.ok(longestParagraphChars(body) < 100); // list line excluded
   const wall = '# หัว\n\n' + 'ค'.repeat(800);
   assert.ok(longestParagraphChars(wall) >= 800);
+});
+
+test('paragraphCount counts prose blocks only', () => {
+  const body = '# หัว\n\nย่อหน้าหนึ่ง\n\nย่อหน้าสอง\n\n- ลิสต์ไม่นับ\n\n## H2 ไม่นับ\n\nย่อหน้าสาม';
+  assert.equal(paragraphCount(body), 3);
+  assert.equal(paragraphCount('เขียนรวดเดียวไม่เว้นบรรทัด'), 1);
 });
 
 test('md wordCount Thai is reasonable', () => {
