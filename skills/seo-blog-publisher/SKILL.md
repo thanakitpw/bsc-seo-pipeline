@@ -21,7 +21,9 @@ description: Publish บทความลง Supabase ตรง (service-role u
 - `--dry-run` เสมอก่อน upsert จริง → ให้ผู้ใช้ยืนยัน
 - upsert `onConflict slug` = idempotent (รันซ้ำ id เดิม ไม่สร้างซ้ำ)
 - **รูป (อัตโนมัติใน publish.mjs)**: ทุกรูปในโฟลเดอร์ → แปลง **webp** (ถ้า `image.convert` + มี sharp) → **rename เป็นชื่อ SEO** `<slug>-cover.webp` / `<slug>-og.webp` / `<slug>-NN.webp` → upload `config.image.storage_bucket` path `<slug>/...` (upsert) → set `cover_image`/`og_image` (og ไม่มี → ใช้ cover แทน) → แทน `![](ไฟล์)` ในเนื้อเป็น public URL
-- **role จากชื่อไฟล์**: `cover.*`→cover · `og.*`→og · `01.*`/`02.*`→in-article · ชื่ออื่น (เช่นตั้งตามบทความ) → ถือเป็น cover + เตือนให้ตั้งชื่อ role ให้ชัด
+- **role จากชื่อไฟล์**: `cover.*`→cover · `og.*`→og · `01.*`/`02.*`→in-article · ชื่ออื่น → ถือเป็น cover + เตือน
+- **OG = jpg/png เสมอ** (Facebook/LINE มัก render webp OG ไม่ขึ้น): cover/in-article แปลง webp ได้ แต่ og เก็บเป็น jpg/png; ไม่มีไฟล์ og แยก → publisher สร้าง og จาก cover เป็น jpg ให้ → set `og_image`
+- หลัง publish: ถ้าเคยแชร์ URL นี้มาก่อน FB cache OG เก่า → ต้อง re-scrape ใน **Facebook Sharing Debugger** (`developers.facebook.com/tools/debug`) แปะ URL กด "Scrape Again"
 - alt text รูปในเนื้อ = ข้อความใน `![alt](..)` ที่ writer/ผู้ใช้ใส่ (สำคัญต่อ SEO/a11y — ให้สื่อภาพจริง)
 - service-role key อยู่ server-side script เท่านั้น ไม่เข้า log/แชร์
 

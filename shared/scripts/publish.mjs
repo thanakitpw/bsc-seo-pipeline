@@ -63,33 +63,67 @@ async function loadSharp() {
 }
 
 // Upload + (optional) webp convert + SEO rename → {byFile, cover, og, inArticle, warnings}
+// OG image stays jpg/png (Facebook/LINE มัก render webp OG ไม่ขึ้น) — cover/in-article เป็น webp ได้
 async function uploadImages(folder, slug, sb, config) {
   const bucket = config.image.storage_bucket;
   const out = { byFile: {}, cover: null, og: null, inArticle: [], warnings: [] };
   if (!existsSync(folder)) return out;
-  const imgs = readdirSync(folder).filter((f) => IMG_EXT[extname(f).toLowerCase()]);
+  const imgs = readdirSync(folder).filter((f) => IMG_EXT[extname(f).toLowerCase()]).sort();
   const wantWebp = config.image.convert !== false && (config.image.format || 'webp') === 'webp';
   const sharp = wantWebp ? await loadSharp() : null;
-  if (wantWebp && !sharp) out.warnings.push('image.convert=true แต่ไม่พบ sharp — อัปโหลดไฟล์เดิม (รัน `npm install` ใน plugin เพื่อแปลง webp)');
-  let coverDone = false;
-  for (const f of imgs.sort()) {
-    let buf = readFileSync(`${folder}/${f}`);
-    let ext = extname(f).toLowerCase();
-    let ct = IMG_EXT[ext];
-    if (sharp && ext !== '.webp' && ext !== '.gif') {
-      buf = await sharp(buf).webp({ quality: 82 }).toBuffer();
-      ext = '.webp'; ct = 'image/webp';
-    }
-    const r = imageRole(f);
-    if (r.role === 'cover' && coverDone) { out.warnings.push(`"${f}" ชื่อไม่ชัดและมี cover แล้ว — ข้าม (ตั้งชื่อ cover.* / og.* / 01.*)`); continue; }
-    const obj = `${slug}/${seoObjectName(slug, r.role, r.idx, ext)}`;
+  if (wantWebp && !sharp) out.warnings.push('image.convert=true แต่ไม่พบ sharp — อัปโหลดไฟล์เดิม (รัน `npm install` ใน plugin)');
+
+  const put = async (objName, buf, ct) => {
+    const obj = `${slug}/${objName}`;
     const { error } = await sb.storage.from(bucket).upload(obj, buf, { contentType: ct, upsert: true });
     if (error) throw new Error(`storage upload ${obj}: ${error.message}`);
-    const url = sb.storage.from(bucket).getPublicUrl(obj).data.publicUrl;
+    return sb.storage.from(bucket).getPublicUrl(obj).data.publicUrl;
+  };
+
+  let coverDone = false;
+  let coverRaw = null; // เก็บ buffer ดิบของ cover ไว้ทำ og fallback
+  for (const f of imgs) {
+    const rawBuf = readFileSync(`${folder}/${f}`);
+    const rawExt = extname(f).toLowerCase();
+    const r = imageRole(f);
+    if (r.role === 'cover' && coverDone) { out.warnings.push(`"${f}" ชื่อไม่ชัดและมี cover แล้ว — ข้าม (ตั้งชื่อ cover.* / og.* / 01.*)`); continue; }
+
+    if (r.role === 'og') {
+      // OG ต้อง jpg/png — ถ้าเป็น webp และมี sharp → แปลงเป็น jpg, ไม่มี sharp → เตือน
+      let buf = rawBuf, ext = rawExt, ct = IMG_EXT[rawExt];
+      if (rawExt === '.webp') {
+        if (sharp) { buf = await sharp(rawBuf).jpeg({ quality: 86 }).toBuffer(); ext = '.jpg'; ct = 'image/jpeg'; }
+        else out.warnings.push(`og เป็น .webp — Facebook/LINE อาจไม่แสดง (ใส่ og.jpg/png หรือ npm install sharp)`);
+      }
+      out.og = await put(seoObjectName(slug, 'og', undefined, ext), buf, ct);
+      out.byFile[f] = out.og;
+      continue;
+    }
+
+    // cover / in-article → webp ถ้าตั้งค่าไว้
+    let buf = rawBuf, ext = rawExt, ct = IMG_EXT[rawExt];
+    if (sharp && rawExt !== '.webp' && rawExt !== '.gif') {
+      buf = await sharp(rawBuf).webp({ quality: 82 }).toBuffer();
+      ext = '.webp'; ct = 'image/webp';
+    }
+    const url = await put(seoObjectName(slug, r.role, r.idx, ext), buf, ct);
     out.byFile[f] = url;
-    if (r.role === 'cover') { out.cover = url; coverDone = true; if (r.assumed) out.warnings.push(`"${f}" ไม่มี role ชัด → ใช้เป็น cover`); }
-    else if (r.role === 'og') out.og = url;
-    else out.inArticle.push({ idx: r.idx, url });
+    if (r.role === 'cover') {
+      out.cover = url; coverDone = true; coverRaw = { buf: rawBuf, ext: rawExt };
+      if (r.assumed) out.warnings.push(`"${f}" ไม่มี role ชัด → ใช้เป็น cover`);
+    } else out.inArticle.push({ idx: r.idx, url });
+  }
+
+  // ไม่มี og แยก → สร้าง og จาก cover เป็น jpg (compat สูงสุดตอนแชร์)
+  if (!out.og && coverRaw) {
+    if (coverRaw.ext === '.jpg' || coverRaw.ext === '.jpeg' || coverRaw.ext === '.png') {
+      out.og = await put(seoObjectName(slug, 'og', undefined, coverRaw.ext), coverRaw.buf, IMG_EXT[coverRaw.ext]);
+    } else if (sharp) {
+      const j = await sharp(coverRaw.buf).jpeg({ quality: 86 }).toBuffer();
+      out.og = await put(seoObjectName(slug, 'og', undefined, '.jpg'), j, 'image/jpeg');
+    } else {
+      out.warnings.push('สร้าง og จาก cover ไม่ได้ (cover เป็น webp + ไม่มี sharp) — ใส่ไฟล์ og.jpg เพื่อให้แชร์ FB ขึ้นรูป');
+    }
   }
   return out;
 }
