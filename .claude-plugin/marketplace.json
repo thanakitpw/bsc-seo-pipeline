@@ -2,13 +2,13 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "bsc-seo-pipeline-automation",
   "owner": { "name": "Thanakit (Best Solutions)", "email": "agency.bestsolutions@gmail.com" },
-  "metadata": { "description": "End-to-end SEO pipeline plugin for Supabase-backed sites", "version": "0.1.3" },
+  "metadata": { "description": "End-to-end SEO pipeline plugin for Supabase-backed sites", "version": "0.1.4" },
   "plugins": [
     {
       "name": "bsc-seo-pipeline",
       "source": "./",
       "description": "setup → audit → research → plan → write → publish SEO content to Supabase (Option A, service-role, idempotent)",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "category": "marketing",
       "keywords": ["seo", "pipeline", "blog", "supabase", "dataforseo", "thai", "content"]
     }

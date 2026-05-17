@@ -16,7 +16,7 @@ description: วาง content plan รายเดือนสำหรับ S
 
 ## Working Principles
 - **Capability banner** ก่อนเริ่ม
-- cadence ไม่ระบุใน config → ถามผ่าน AskUserQuestion
+- 🔒 **ถาม cadence (กี่บทความ) ก่อนเสมอ** — แม้ config มีค่าแล้วก็ต้อง AskUserQuestion ยืนยัน/override เดือนนี้ ห้ามคำนวณ slot เงียบจาก default
 - ทุก slot ผูก keyword + category (whitelist) + internal-link target (≥1 pillar)
 - breaking/ด่วน = **add slot ไม่ swap** ของเดิม
 - ไม่ผลิตเกิน backlog ที่มี — ขาด → ชี้กลับ seo-blog-research

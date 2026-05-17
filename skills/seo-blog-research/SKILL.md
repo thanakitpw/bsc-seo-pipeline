@@ -15,6 +15,7 @@ description: หา topic ideas สำหรับ SEO blog — DataForSEO (sear
 - มี audit report ล่าสุด (`audit/<date>-audit.md`) — ถ้าไม่มี เตือนให้รัน seo-blog-audit ก่อน (ไม่ hard-block)
 
 ## Working Principles
+- 🔒 **ถามจำนวน keyword ก่อนเสมอ (Step 2)** — เป็น hard gate ห้ามข้าม ห้ามใช้ค่า default เงียบ ห้ามเสนอ topic ก่อนผู้ใช้ตอบ
 - **Capability banner** ก่อนเริ่ม
 - DataForSEO ไม่พร้อม (`enabled:false` หรือ exit 2) → degrade เป็น WebSearch qualitative + แจ้งชัดว่าข้อมูล volume ไม่มี
 - อ้าง cannibalization findings จาก audit report + `publish.mjs --list-slugs`
@@ -23,12 +24,13 @@ description: หา topic ideas สำหรับ SEO blog — DataForSEO (sear
 
 ## Workflow
 1. **Banner** + เช็ค audit report ล่าสุด
-2. **โหลด corpus**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs --list-slugs` → slug/title เดิม
-3. **Track A keyword**: `dataforseo.mjs ideas <seed>` + `volume <kw...>` (seed จาก pillar/หมวด). degrade → WebSearch
-4. **Track B SERP/PAA**: `dataforseo.mjs serp <kw>` เก็บ organic top + people_also_ask. degrade → WebSearch
-5. **Track C gap**: เทียบ PAA/competitor กับ corpus → หาช่องที่ยังไม่มีบทความ
-6. **คัด cannibalization**: ตัด topic ที่ title ใกล้ของเดิม (เทียบ similarity)
-7. **จำนวนรอบนี้**: default = `config.research.keywords_per_round` → AskUserQuestion ยืนยัน/เปลี่ยน (preset 5/10/20/กำหนดเอง). เสนอ topic จำนวนนั้น (title, keyword, volume, intent, category, pillar fit, source) → ผู้ใช้เลือกตัวที่จะเขียน (เลือกได้หลายตัว)
+2. **🔒 BLOCKING — ถามจำนวนก่อนเสมอ**: ก่อนทำ track/เสนอ topic ใดๆ **ต้อง** AskUserQuestion ถาม "หากี่ keyword รอบนี้?" (default = `config.research.keywords_per_round`, preset `5 / 10 / 20 / กำหนดเอง`). **ห้ามข้าม ห้ามใช้ default เงียบ ห้ามเสนอ topic จนกว่าผู้ใช้จะตอบ** — ถ้ายังไม่ถาม = ทำผิด workflow
+3. **โหลด corpus**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs --list-slugs` → slug/title เดิม
+4. **Track A keyword**: `dataforseo.mjs ideas <seed>` + `volume <kw...>` (seed จาก pillar/หมวด). degrade → WebSearch
+5. **Track B SERP/PAA**: `dataforseo.mjs serp <kw>` เก็บ organic top + people_also_ask. degrade → WebSearch
+6. **Track C gap**: เทียบ PAA/competitor กับ corpus → หาช่องที่ยังไม่มีบทความ
+7. **คัด cannibalization**: ตัด topic ที่ title ใกล้ของเดิม (เทียบ similarity)
+7b. **เสนอ topic = จำนวนที่ผู้ใช้ตอบใน Step 2** (title, keyword, volume, intent, category, pillar fit, source) → ผู้ใช้เลือกตัวที่จะเขียน (เลือกได้หลายตัว)
 8. **เติม backlog**: ถ้าไม่มี `research/_backlog.md` → copy จาก `templates/keyword-backlog.md`. **append ทุก topic ที่เจอรอบนี้** (รวมที่ไม่ได้เลือก) เป็นแถว `status: backlog`; ตัวที่ผู้ใช้เลือก → มาร์คแถวนั้น `status: planned`; ที่ผู้ใช้ปัดทิ้ง → `skip` (ใช้ Edit tool, อย่าทับของเดิม — เช็ค keyword ซ้ำก่อน append)
 9. **บันทึกที่เลือก**: เขียน `research/<date>-<slug>.md` (โครงใน references) เฉพาะ topic ที่เลือก
 10. ปิดท้าย `🔜 Next: run seo-blog-plan`
