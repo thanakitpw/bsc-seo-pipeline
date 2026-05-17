@@ -48,6 +48,22 @@ export function paragraphCount(body) {
     .length;
 }
 
+// สถิติตัวหนา **...** — count + ช่วงที่ยาวสุด (กัน bold ทั้งย่อหน้า = spammy)
+export function boldStats(body) {
+  const src = body.replace(/```[\s\S]*?```/g, '');
+  let count = 0, maxLen = 0;
+  const re = /\*\*([^*\n]+)\*\*/g;
+  let m;
+  while ((m = re.exec(src))) { count++; maxLen = Math.max(maxLen, m[1].trim().length); }
+  return { count, maxLen };
+}
+
+// ไฮไลต์/สี/HTML ที่ renderer มักไม่รองรับ (==hl==, <mark>, style=, <span>)
+export function hasUnsupportedStyling(body) {
+  const src = body.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '');
+  return /==[^=]+==|<mark\b|<span\b|style\s*=|<font\b/i.test(src);
+}
+
 // ตรวจ markdown table (pipe + แถว separator |---|) — renderer หลายตัวไม่รองรับ GFM table
 export function hasMarkdownTable(body) {
   const lines = body.replace(/```[\s\S]*?```/g, '').split('\n');

@@ -104,6 +104,19 @@ test('warn: markdown table (renderer ไม่รองรับ)', () => {
   assert.deepEqual(r.errors, []);
 });
 
+test('warn: unsupported styling (==hl==/<mark>)', () => {
+  const body = goodBody + '\n\nเน้น ==ไฮไลต์== ตรงนี้';
+  const r = runGate({ frontmatter: goodFm, body, config: cfg() });
+  assert.ok(r.warnings.some((w) => w.includes('highlight')));
+  assert.deepEqual(r.errors, []);
+});
+
+test('warn: over-bolding (whole paragraph bold)', () => {
+  const body = goodBody + '\n\n**' + 'คำสำคัญมาก '.repeat(30) + '**';
+  const r = runGate({ frontmatter: goodFm, body, config: cfg() });
+  assert.ok(r.warnings.some((w) => w.includes('ตัวหนายาว')));
+});
+
 test('warn: voice banned word', () => {
   const body = '# หัว\n[a](/services/seo) [b](/contact) เนื้อหา 555 ' + 'คำ '.repeat(60);
   const r = runGate({ frontmatter: goodFm, body, config: cfg() });

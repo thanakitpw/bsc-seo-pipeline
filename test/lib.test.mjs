@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { slugify, isValidSlug, KEBAB_EN_RE } from '../shared/scripts/lib/slugify.mjs';
-import { h1Count, headingOrderViolation, links, wordCount, similarity, headings, hasList, longestParagraphChars, paragraphCount, hasMarkdownTable } from '../shared/scripts/lib/md.mjs';
+import { h1Count, headingOrderViolation, links, wordCount, similarity, headings, hasList, longestParagraphChars, paragraphCount, hasMarkdownTable, boldStats, hasUnsupportedStyling } from '../shared/scripts/lib/md.mjs';
 import { envCheck } from '../shared/scripts/lib/env-check.mjs';
 import { parseImgMeta } from '../shared/scripts/lib/img-size.mjs';
 
@@ -66,6 +66,20 @@ test('paragraphCount counts prose blocks only', () => {
   const body = '# หัว\n\nย่อหน้าหนึ่ง\n\nย่อหน้าสอง\n\n- ลิสต์ไม่นับ\n\n## H2 ไม่นับ\n\nย่อหน้าสาม';
   assert.equal(paragraphCount(body), 3);
   assert.equal(paragraphCount('เขียนรวดเดียวไม่เว้นบรรทัด'), 1);
+});
+
+test('boldStats counts spans + max length', () => {
+  const s = boldStats('ปกติ **คำสำคัญ** ต่อ **อีกคำ** จบ');
+  assert.equal(s.count, 2);
+  assert.equal(s.maxLen, 'คำสำคัญ'.length);
+  assert.equal(boldStats('ไม่มีตัวหนา').count, 0);
+});
+
+test('hasUnsupportedStyling flags ==hl==/<mark>/style, not plain bold', () => {
+  assert.equal(hasUnsupportedStyling('นี่ ==ไฮไลต์=='), true);
+  assert.equal(hasUnsupportedStyling('<mark>เน้น</mark>'), true);
+  assert.equal(hasUnsupportedStyling('<span style="color:red">x</span>'), true);
+  assert.equal(hasUnsupportedStyling('**ตัวหนา** *เอียง* > quote'), false);
 });
 
 test('hasMarkdownTable detects pipe tables, not plain pipes', () => {

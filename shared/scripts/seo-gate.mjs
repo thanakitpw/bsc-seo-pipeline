@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import matter from 'gray-matter';
 import { loadConfig } from './lib/config.mjs';
-import { h1Count, headingOrderViolation, links, wordCount, similarity, hasList, longestParagraphChars, paragraphCount, hasMarkdownTable } from './lib/md.mjs';
+import { h1Count, headingOrderViolation, links, wordCount, similarity, hasList, longestParagraphChars, paragraphCount, hasMarkdownTable, boldStats, hasUnsupportedStyling } from './lib/md.mjs';
 import { isValidSlug } from './lib/slugify.mjs';
 
 /**
@@ -84,6 +84,10 @@ export function runGate({ frontmatter = {}, body = '', config, existingSlugs = [
   // formatting / scannability (warn — อ่านง่าย = SEO + UX)
   if (!hasList(body)) warnings.push('formatting: ไม่มี bullet/numbered list เลย — เพิ่มลิสต์ให้สแกนง่าย');
   if (hasMarkdownTable(body)) warnings.push('formatting: พบ markdown table — renderer เว็บอาจไม่รองรับ (เห็น | --- ดิบ) ใช้ bullet/หัวข้อย่อยแทน');
+  if (hasUnsupportedStyling(body)) warnings.push('formatting: พบ ==highlight==/<mark>/HTML/style — renderer เว็บมักไม่รองรับ ใช้ **ตัวหนา** หรือ > blockquote แทน');
+  const bold = boldStats(body);
+  if (bold.maxLen > 120) warnings.push(`formatting: มีตัวหนายาว ~${bold.maxLen} ตัว (เกือบทั้งย่อหน้า) — bold เฉพาะคำ/วลีสำคัญ ไม่ใช่ทั้งประโยค`);
+  if (bold.count > 18) warnings.push(`formatting: ตัวหนาเยอะเกิน (${bold.count} จุด) — Google มองว่า over-format/spam, เน้นเท่าที่จำเป็น`);
   const longPara = longestParagraphChars(body);
   if (longPara > 700) warnings.push(`formatting: ย่อหน้ายาวเกิน (~${longPara} ตัวอักษร) — ตัดเป็นย่อหน้าสั้น/ลิสต์`);
   const paras = paragraphCount(body);
