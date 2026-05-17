@@ -13,6 +13,31 @@ export function headings(body) {
   return out;
 }
 
+// มี bullet/numbered list ไหม (ข้าม code fence)
+export function hasList(body) {
+  let inFence = false;
+  for (const line of body.split('\n')) {
+    if (/^```/.test(line.trim())) { inFence = !inFence; continue; }
+    if (inFence) continue;
+    if (/^\s*([-*+]|\d+\.)\s+\S/.test(line)) return true;
+  }
+  return false;
+}
+
+// ย่อหน้าที่ยาวเกิน (กำแพงตัวอักษร) — คืนความยาวสูงสุดของ paragraph
+export function longestParagraphChars(body) {
+  const blocks = body
+    .replace(/```[\s\S]*?```/g, '')
+    .split(/\n\s*\n/);
+  let max = 0;
+  for (const b of blocks) {
+    const t = b.trim();
+    if (!t || /^#{1,6}\s/.test(t) || /^\s*([-*+]|\d+\.|>|\|)/.test(t)) continue;
+    max = Math.max(max, t.replace(/\s+/g, ' ').length);
+  }
+  return max;
+}
+
 export function h1Count(body) {
   return headings(body).filter((h) => h.level === 1).length;
 }

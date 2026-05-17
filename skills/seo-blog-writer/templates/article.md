@@ -13,15 +13,33 @@ status: draft
 
 # {{H1_TITLE}}
 
-{{INTRO}}
+{{INTRO — 2-4 ประโยค ตอบ intent + keyword หลักใน ~100 คำแรก}}
 
 ## {{SECTION_1}}
 
-{{BODY — internal link ≥2, ≥1 pillar เช่น [บริการ SEO]({{PILLAR_PATH}}) }}
+{{ย่อหน้าสั้น 2-4 บรรทัด internal link [บริการ SEO]({{PILLAR_PATH}}) }}
 
-<!-- รูป in-article (ถ้ามี): ![alt ไทย](01.png) — publisher แทนเป็น public URL -->
+<!-- รูป in-article (ถ้ามี): publisher แทนเป็น public URL -->
 ![{{IMG1_ALT}}](01.png)
+
+## {{SECTION_2 — เช่น "ขั้นตอน/ข้อดี" ใส่เป็นลิสต์}}
+
+ต้องมีลิสต์อย่างน้อย 1 ชุด (gate warn ถ้าไม่มี):
+
+- {{ข้อ 1}}
+- {{ข้อ 2}}
+- {{ข้อ 3}}
+
+## คำถามที่พบบ่อย (FAQ)
+
+ตอบ People-Also-Ask จาก research:
+
+**{{คำถาม PAA 1}}**
+{{คำตอบสั้น กระชับ}}
+
+**{{คำถาม PAA 2}}**
+{{คำตอบสั้น กระชับ}}
 
 ## สรุป
 
-{{CONCLUSION + CTA → pillar/contact}}
+{{สรุป + CTA → pillar/contact}}

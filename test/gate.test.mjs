@@ -78,6 +78,18 @@ test('warn: cannibalization by title similarity', () => {
   assert.ok(r.warnings.some((w) => w.includes('cannibalization')));
 });
 
+test('warn: no list (formatting)', () => {
+  const body = '# หัว\n[a](/services/seo) [b](/contact) ' + 'เนื้อหา '.repeat(60);
+  const r = runGate({ frontmatter: goodFm, body, config: cfg() });
+  assert.ok(r.warnings.some((w) => w.includes('bullet/numbered list')));
+  assert.deepEqual(r.errors, []);
+});
+
+test('no formatting warn when list present', () => {
+  const r = runGate({ frontmatter: goodFm, body: goodBody + '\n\n- ข้อ 1\n- ข้อ 2', config: cfg() });
+  assert.ok(!r.warnings.some((w) => w.includes('bullet/numbered list')));
+});
+
 test('warn: voice banned word', () => {
   const body = '# หัว\n[a](/services/seo) [b](/contact) เนื้อหา 555 ' + 'คำ '.repeat(60);
   const r = runGate({ frontmatter: goodFm, body, config: cfg() });

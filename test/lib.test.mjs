@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { slugify, isValidSlug, KEBAB_EN_RE } from '../shared/scripts/lib/slugify.mjs';
-import { h1Count, headingOrderViolation, links, wordCount, similarity, headings } from '../shared/scripts/lib/md.mjs';
+import { h1Count, headingOrderViolation, links, wordCount, similarity, headings, hasList, longestParagraphChars } from '../shared/scripts/lib/md.mjs';
 import { envCheck } from '../shared/scripts/lib/env-check.mjs';
 import { parseImgMeta } from '../shared/scripts/lib/img-size.mjs';
 
@@ -46,6 +46,20 @@ test('md links internal detection', () => {
   const ls = links('[a](/x) [b](https://example.com/y) [c](https://other.com/z) [d](#frag)', 'https://example.com');
   const internal = ls.filter((l) => l.internal).map((l) => l.href);
   assert.deepEqual(internal.sort(), ['/x', 'https://example.com/y']);
+});
+
+test('hasList detects bullet/numbered, ignores code fence', () => {
+  assert.equal(hasList('ย่อหน้า\n\n- ข้อ 1\n- ข้อ 2'), true);
+  assert.equal(hasList('1. หนึ่ง\n2. สอง'), true);
+  assert.equal(hasList('ไม่มีลิสต์เลย ย่อหน้าเดียว'), false);
+  assert.equal(hasList('```\n- ในโค้ดไม่นับ\n```'), false);
+});
+
+test('longestParagraphChars ignores headings/lists/code', () => {
+  const body = '# หัว\n\n' + 'ก'.repeat(50) + '\n\n- ลิสต์ยาว ' + 'ข'.repeat(900);
+  assert.ok(longestParagraphChars(body) < 100); // list line excluded
+  const wall = '# หัว\n\n' + 'ค'.repeat(800);
+  assert.ok(longestParagraphChars(wall) >= 800);
 });
 
 test('md wordCount Thai is reasonable', () => {
