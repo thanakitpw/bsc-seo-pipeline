@@ -31,8 +31,10 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
    - 3.2 supabase: `project_ref`, `table` (default `articles`)
    - 3.3 taxonomy `whitelist[]`, internal_links `pillars[]` (path เช่น `/services/seo`)
    - 3.4 decisions: `author.name` (หรือ TBD), `image.strategy`, `slug.convention`
-   - 3.5 dataforseo: `location_code`/`language_code` (default 2764/th)
-   - 3.6 voice: `audience`, `formality`, `person`(สรรพนามแบรนด์), `preferred_words[]`, `banned_words[]`, `sample`(1-2 ประโยคน้ำเสียง)
+   - 3.5 **cadence** (AskUserQuestion preset): `รายเดือน 12 บทความ` (monthly,12) / `สัปดาห์ละ 3` (weekly,3) / `วันละ 1` (daily,1) / กำหนดเอง → เขียน `cadence.mode`+`cadence.count`
+   - 3.6 **research.keywords_per_round** (preset): `5` / `10` / `20` / กำหนดเอง
+   - 3.7 dataforseo: `location_code`/`language_code` (default 2764/th)
+   - 3.8 voice: `audience`, `formality`, `person`(สรรพนามแบรนด์), `preferred_words[]`, `banned_words[]`, `sample`(1-2 ประโยคน้ำเสียง)
 4. **เขียน config**: เอา `templates/seo-blog.config.yaml` เติมค่า (รวม voice) → write ที่ root ด้วย native Write tool
 4b. **สร้าง voice/style-notes.md**: ถ้ายังไม่มี → copy `templates/style-notes.md` ไป `voice/style-notes.md` (feedback loop ของ writer)
 5. **สร้าง `.env` โครงเปล่า + กัน git**:

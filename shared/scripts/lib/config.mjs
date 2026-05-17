@@ -39,6 +39,13 @@ const schema = z.object({
     seo_description_max: z.number().int().default(160),
     word_count_min: z.number().int().default(600),
   }).default({}),
+  cadence: z.object({
+    mode: z.enum(['monthly', 'weekly', 'daily']).default('monthly'),
+    count: z.number().int().default(12), // monthly:ต่อเดือน · weekly:ต่อสัปดาห์ · daily:ต่อวัน
+  }).default({}),
+  research: z.object({
+    keywords_per_round: z.number().int().default(10),
+  }).default({}),
   dataforseo: z.object({
     location_code: z.number().int().default(2764),
     language_code: z.string().default('th'),

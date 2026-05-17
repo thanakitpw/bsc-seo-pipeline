@@ -23,13 +23,14 @@ description: วาง content plan รายเดือนสำหรับ S
 
 ## Workflow
 1. **Banner**
-2. **โหลด backlog**: อ่าน `research/*.md` ที่ยังไม่ถูก plan
-3. **cadence**: อ่าน/ถาม จำนวนชิ้นต่อสัปดาห์
-4. **คำนวณ slot**: เดือนเป้าหมาย × cadence → จำนวน slot
+2. **โหลด backlog**: อ่าน `research/_backlog.md` (แหล่งหลัก — เอาแถว `status: backlog`) + `research/*.md` ที่ยังไม่ถูก plan
+3. **cadence**: อ่าน `config.cadence` (mode+count) → AskUserQuestion ยืนยัน/override เดือนนี้ (preset รายเดือน12 / สัปดาห์3 / วันละ1 / กำหนดเอง)
+4. **คำนวณ slot/เดือน**: monthly → `count` · weekly → `round(count*30/7)` · daily → `count*30` (ปัดตามจำนวนวันจริงของเดือนได้)
 5. **จัดสัดส่วน pillar-cluster**: กระจาย topic ตาม pillar (อ้าง references)
-6. **map slot**: แต่ละ slot = {วันที่, research file, keyword, category, internal-link targets ≥1 pillar}
+6. **map slot**: แต่ละ slot = {วันที่, research file/keyword, category, internal-link targets ≥1 pillar}
 7. **เขียน** `plans/<YYYY-MM>-plan.md` จาก template ด้วย Write tool
-8. ปิดท้าย `🔜 Next: run seo-blog-writer`
+8. **มาร์ค backlog**: แถวใน `research/_backlog.md` ที่ลง slot แล้ว → เปลี่ยน `status` เป็น `planned` (Edit tool) กันหยิบซ้ำเดือนหน้า
+9. ปิดท้าย `🔜 Next: run seo-blog-writer`
 
 ## Templates
 | file | ใช้ที่ |

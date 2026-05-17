@@ -28,9 +28,15 @@ description: หา topic ideas สำหรับ SEO blog — DataForSEO (sear
 4. **Track B SERP/PAA**: `dataforseo.mjs serp <kw>` เก็บ organic top + people_also_ask. degrade → WebSearch
 5. **Track C gap**: เทียบ PAA/competitor กับ corpus → หาช่องที่ยังไม่มีบทความ
 6. **คัด cannibalization**: ตัด topic ที่ title ใกล้ของเดิม (เทียบ similarity)
-7. **เสนอ 5–10 topic** (title, keyword, volume, intent, category, pillar fit, source) → AskUserQuestion เลือก
-8. **บันทึก**: เขียน `research/<date>-<slug>.md` (ใช้โครงใน references) ด้วย Write tool
-9. ปิดท้าย `🔜 Next: run seo-blog-plan`
+7. **จำนวนรอบนี้**: default = `config.research.keywords_per_round` → AskUserQuestion ยืนยัน/เปลี่ยน (preset 5/10/20/กำหนดเอง). เสนอ topic จำนวนนั้น (title, keyword, volume, intent, category, pillar fit, source) → ผู้ใช้เลือกตัวที่จะเขียน (เลือกได้หลายตัว)
+8. **เติม backlog**: ถ้าไม่มี `research/_backlog.md` → copy จาก `templates/keyword-backlog.md`. **append ทุก topic ที่เจอรอบนี้** (รวมที่ไม่ได้เลือก) เป็นแถว `status: backlog`; ตัวที่ผู้ใช้เลือก → มาร์คแถวนั้น `status: planned`; ที่ผู้ใช้ปัดทิ้ง → `skip` (ใช้ Edit tool, อย่าทับของเดิม — เช็ค keyword ซ้ำก่อน append)
+9. **บันทึกที่เลือก**: เขียน `research/<date>-<slug>.md` (โครงใน references) เฉพาะ topic ที่เลือก
+10. ปิดท้าย `🔜 Next: run seo-blog-plan`
+
+## Templates
+| file | ใช้ที่ |
+|---|---|
+| `templates/keyword-backlog.md` | Step 8 (สร้าง `research/_backlog.md` ครั้งแรก) |
 
 ## Scripts
 | script | step |
