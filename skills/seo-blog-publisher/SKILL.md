@@ -35,7 +35,7 @@ description: Publish บทความลง Supabase ตรง (service-role u
 4. **ยืนยัน**: AskUserQuestion {publish จริง / แก้ก่อน} — ถ้ายังไม่ใส่รูปแต่อยากมีรูป เตือนก่อน
 5. **upsert**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs articles/<NN>-<slug>/<NN>-<slug>.md` → upload รูป + `{id,slug,images,warnings}`
 6. **verify**: แนะนำเช็ค row + รูปใน Storage + บทความขึ้น sitemap/route
-7. ปิดท้าย `🔜 Next: run seo-blog-audit` (loop รอบถัดไป)
+7. ปิดท้าย `🔜 Next: run seo-blog-fb-post` (ทำแคปชั่นแชร์ FB) → แล้ว `seo-blog-audit` (loop รอบถัดไป)
 
 ## Scripts
 | script | step |

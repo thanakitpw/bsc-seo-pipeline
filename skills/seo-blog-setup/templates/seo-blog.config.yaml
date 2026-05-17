@@ -54,6 +54,16 @@ cadence:
   count: 12                    # monthly=บทความ/เดือน · weekly=/สัปดาห์ · daily=/วัน
                                # e.g. เดือนละ 12 → monthly,12 | วันละ 1 → daily,1
 
+social:                        # seo-blog-fb-post ใช้
+  fb_enabled: true             # false = ปิด FB repurpose
+  channels:                    # ว่าง = ข้ามบล็อกนั้นในแคปชั่น (ไม่เดา)
+    messenger: ""              # e.g. m.me/yourpage
+    line: ""                   # e.g. @yourline
+    phone: ""                  # e.g. 02-000-0000
+    website: ""
+  hashtags: []                 # e.g. ["#SEO", "#ทำเว็บ", "#DigitalMarketing"]
+  max_chars: 0                 # 0 = ไม่จำกัดความยาวแคปชั่น
+
 research:
   keywords_per_round: 10       # research เสนอกี่ topic ต่อรอบ (เลือกตอน runtime ได้)
 

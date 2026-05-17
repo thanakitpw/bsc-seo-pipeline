@@ -62,6 +62,17 @@ const schema = z.object({
   research: z.object({
     keywords_per_round: z.number().int().default(10),
   }).default({}),
+  social: z.object({
+    fb_enabled: z.boolean().default(true),
+    channels: z.object({
+      messenger: z.string().default(''), // e.g. m.me/yourpage
+      line: z.string().default(''),      // e.g. @yourline
+      phone: z.string().default(''),
+      website: z.string().default(''),
+    }).default({}),
+    hashtags: z.array(z.string()).default([]),
+    max_chars: z.number().int().default(0), // 0 = ไม่จำกัด
+  }).default({}),
   dataforseo: z.object({
     location_code: z.number().int().default(2764),
     language_code: z.string().default('th'),

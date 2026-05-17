@@ -3,7 +3,7 @@
 Claude Code marketplace plugin — end-to-end SEO pipeline ที่ publish ตรงลง Supabase (Option A, service-role, idempotent). Generic/portable: ค่าทั้งหมดอยู่ใน per-project `seo-blog.config.yaml` + `.env`. (เริ่มจาก blog content pipeline — ออกแบบให้ขยายครบ SEO ในอนาคต)
 
 ## Skills (chain)
-setup → audit → research → plan → writer → image-prompt → (ใส่รูป) → publisher → (loop กลับ audit)
+setup → audit → research → plan → writer → image-prompt → (ใส่รูป) → publisher → fb-post → (loop กลับ audit)
 
 | skill | หน้าที่ |
 |---|---|
@@ -14,6 +14,7 @@ setup → audit → research → plan → writer → image-prompt → (ใส่
 | seo-blog-writer | เขียนไทยตาม contract → `articles/<NN>-<slug>/` + pre-gate (warn) |
 | seo-blog-image-prompt | คิด prompt cover/OG/in-article + alt ไทย → prompts.md |
 | seo-blog-publisher | gate (block) → upload รูป Storage → upsert Supabase |
+| seo-blog-fb-post | แคปชั่น FB teaser + ลิงก์อ่านต่อ → fb.md |
 
 ผู้ใช้วางไฟล์รูป (`cover.png`/`og.png`/`01.png`..) ลงโฟลเดอร์บทความเอง ระหว่าง image-prompt → publisher
 

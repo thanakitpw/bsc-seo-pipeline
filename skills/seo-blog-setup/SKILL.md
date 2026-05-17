@@ -34,6 +34,7 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
    - 3.4b **image.brand (CI)**: ถาม `primary/secondary/accent` (hex), `font`, `style` (เว้นว่างได้ = generic) — `sizes` ไม่ต้องถาม (image-prompt ดึงจากเว็บจริงเอง)
    - 3.5 **cadence** (AskUserQuestion preset): `รายเดือน 12 บทความ` (monthly,12) / `สัปดาห์ละ 3` (weekly,3) / `วันละ 1` (daily,1) / กำหนดเอง → เขียน `cadence.mode`+`cadence.count`
    - 3.6 **research.keywords_per_round** (preset): `5` / `10` / `20` / กำหนดเอง
+   - 3.6b **social** (FB repurpose): `channels.messenger/line/phone/website`, `hashtags[]` (เว้นว่างได้ = ข้ามบล็อกนั้น)
    - 3.7 dataforseo: `location_code`/`language_code` (default 2764/th)
    - 3.8 voice: `audience`, `formality`, `person`(สรรพนามแบรนด์), `preferred_words[]`, `banned_words[]`, `sample`(1-2 ประโยคน้ำเสียง)
 4. **เขียน config**: เอา `templates/seo-blog.config.yaml` เติมค่า (รวม voice) → write ที่ root ด้วย native Write tool
