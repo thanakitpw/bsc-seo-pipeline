@@ -48,6 +48,17 @@ export function paragraphCount(body) {
     .length;
 }
 
+// ตรวจ markdown table (pipe + แถว separator |---|) — renderer หลายตัวไม่รองรับ GFM table
+export function hasMarkdownTable(body) {
+  const lines = body.replace(/```[\s\S]*?```/g, '').split('\n');
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (/\|/.test(lines[i]) && /^\s*\|?\s*:?-{2,}\s*(\|\s*:?-{2,}\s*)+\|?\s*$/.test(lines[i + 1])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function h1Count(body) {
   return headings(body).filter((h) => h.level === 1).length;
 }

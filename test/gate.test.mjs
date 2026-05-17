@@ -97,6 +97,13 @@ test('warn: too few paragraph breaks (wall of text)', () => {
   assert.deepEqual(r.errors, []);
 });
 
+test('warn: markdown table (renderer ไม่รองรับ)', () => {
+  const body = goodBody + '\n\n| คอลัมน์ | ค่า |\n|---|---|\n| a | 1 |';
+  const r = runGate({ frontmatter: goodFm, body, config: cfg() });
+  assert.ok(r.warnings.some((w) => w.includes('markdown table')));
+  assert.deepEqual(r.errors, []);
+});
+
 test('warn: voice banned word', () => {
   const body = '# หัว\n[a](/services/seo) [b](/contact) เนื้อหา 555 ' + 'คำ '.repeat(60);
   const r = runGate({ frontmatter: goodFm, body, config: cfg() });

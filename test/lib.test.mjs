@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { slugify, isValidSlug, KEBAB_EN_RE } from '../shared/scripts/lib/slugify.mjs';
-import { h1Count, headingOrderViolation, links, wordCount, similarity, headings, hasList, longestParagraphChars, paragraphCount } from '../shared/scripts/lib/md.mjs';
+import { h1Count, headingOrderViolation, links, wordCount, similarity, headings, hasList, longestParagraphChars, paragraphCount, hasMarkdownTable } from '../shared/scripts/lib/md.mjs';
 import { envCheck } from '../shared/scripts/lib/env-check.mjs';
 import { parseImgMeta } from '../shared/scripts/lib/img-size.mjs';
 
@@ -66,6 +66,13 @@ test('paragraphCount counts prose blocks only', () => {
   const body = '# หัว\n\nย่อหน้าหนึ่ง\n\nย่อหน้าสอง\n\n- ลิสต์ไม่นับ\n\n## H2 ไม่นับ\n\nย่อหน้าสาม';
   assert.equal(paragraphCount(body), 3);
   assert.equal(paragraphCount('เขียนรวดเดียวไม่เว้นบรรทัด'), 1);
+});
+
+test('hasMarkdownTable detects pipe tables, not plain pipes', () => {
+  assert.equal(hasMarkdownTable('| a | b |\n|---|---|\n| 1 | 2 |'), true);
+  assert.equal(hasMarkdownTable('ข้อความมี | คั่น แต่ไม่ใช่ตาราง'), false);
+  assert.equal(hasMarkdownTable('- ข้อ 1\n- ข้อ 2'), false);
+  assert.equal(hasMarkdownTable('```\n| a |\n|---|\n```'), false);
 });
 
 test('md wordCount Thai is reasonable', () => {
