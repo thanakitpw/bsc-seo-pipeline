@@ -25,6 +25,7 @@ description: ตรวจ SEO ก่อนเริ่ม research — site-read
 
 ## Workflow
 1. **Banner**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/env-check.mjs --banner`. Supabase ขาด → หยุด ชี้ไป setup
+1b. **🔄 Reconcile progress**: `publish.mjs --list-slugs` + โฟลเดอร์ `articles/` → slug ที่ publish/มีแล้วแต่ `research/_backlog.md`/`plans/*-plan.md` ยัง status ≠ `done` → Edit เป็น `done` (sync ของเก่าให้ตรงความจริง ทุกต้นรอบ)
 2. **รัน audit**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/audit.mjs` (โหมด all) → เขียน `audit/<date>-audit.md`, พิมพ์ P0/P1/P2 count
 3. **อ่านรายงาน**: Read `audit/<date>-audit.md` สรุปให้ผู้ใช้แบบเข้าใจง่าย (เรียง P0 ก่อน)
 4. **ถ้ามี P0**: อธิบายผลกระทบ (เช่น pillar พัง → writer สร้าง internal link เสีย) → AskUserQuestion {แก้ก่อน / รับทราบแล้วไปต่อ}

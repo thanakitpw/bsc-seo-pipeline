@@ -23,6 +23,7 @@ description: วาง content plan รายเดือนสำหรับ S
 
 ## Workflow
 1. **Banner**
+1b. **🔄 Reconcile (self-heal ของเก่า)**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs --list-slugs` + ดูโฟลเดอร์ `articles/<NN>-<slug>/` → slug ไหนที่ publish/มีอยู่แล้ว แต่ใน `research/_backlog.md` หรือ `plans/*-plan.md` ยัง status ≠ `done` → Edit เป็น `done` (sync ไฟล์ให้ตรงความจริงก่อนวางแผนต่อ — ของเก่าก่อน v0.1.12 จะถูกแก้ให้เองรอบนี้)
 2. **โหลด backlog**: อ่าน `research/_backlog.md` (แหล่งหลัก — เอาแถว `status: backlog`) + `research/*.md` ที่ยังไม่ถูก plan
 3. **cadence**: อ่าน `config.cadence` (mode+count) → AskUserQuestion ยืนยัน/override เดือนนี้ (preset รายเดือน12 / สัปดาห์3 / วันละ1 / กำหนดเอง)
 4. **คำนวณ slot/เดือน**: monthly → `count` · weekly → `round(count*30/7)` · daily → `count*30` (ปัดตามจำนวนวันจริงของเดือนได้)
