@@ -26,6 +26,20 @@ const schema = z.object({
     og_image_base_url: z.string().default(''),
     in_article_max: z.number().int().default(2),
     storage_bucket: z.string().default('blog-covers'),
+    brand: z.object({
+      primary: z.string().default(''),     // hex สีหลัก CI
+      secondary: z.string().default(''),
+      accent: z.string().default(''),
+      font: z.string().default(''),        // ชื่อฟอนต์แบรนด์ (ใช้กับ asset ที่มี text)
+      style: z.string().default(''),       // เช่น "flat illustration, clean, modern"
+      avoid: z.string().default('no text in image, no logo, no real faces'),
+    }).default({}),
+    sizes: z.object({
+      // ว่าง = ให้ seo-blog-image-prompt ดึงจากหน้าเว็บจริง (og:image:width/height)
+      cover: z.string().default(''),       // e.g. "1600x900"
+      og: z.string().default(''),          // e.g. "1200x630"
+      in_article: z.string().default(''),  // e.g. "1600x900"
+    }).default({}),
   }).default({}),
   taxonomy: z.object({ whitelist: z.array(z.string()).default([]) }).default({}),
   internal_links: z.object({

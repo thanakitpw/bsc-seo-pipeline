@@ -31,6 +31,7 @@ description: ตั้งค่าโปรเจค SEO blog ใหม่ — �
    - 3.2 supabase: `project_ref`, `table` (default `articles`)
    - 3.3 taxonomy `whitelist[]`, internal_links `pillars[]` (path เช่น `/services/seo`)
    - 3.4 decisions: `author.name` (หรือ TBD), `image.strategy`, `slug.convention`
+   - 3.4b **image.brand (CI)**: ถาม `primary/secondary/accent` (hex), `font`, `style` (เว้นว่างได้ = generic) — `sizes` ไม่ต้องถาม (image-prompt ดึงจากเว็บจริงเอง)
    - 3.5 **cadence** (AskUserQuestion preset): `รายเดือน 12 บทความ` (monthly,12) / `สัปดาห์ละ 3` (weekly,3) / `วันละ 1` (daily,1) / กำหนดเอง → เขียน `cadence.mode`+`cadence.count`
    - 3.6 **research.keywords_per_round** (preset): `5` / `10` / `20` / กำหนดเอง
    - 3.7 dataforseo: `location_code`/`language_code` (default 2764/th)

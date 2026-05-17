@@ -21,6 +21,17 @@ image:
   og_image_base_url: ""
   in_article_max: 2            # จำนวนรูปในเนื้อสูงสุด (0 = ปิด in-article)
   storage_bucket: "blog-covers"     # Supabase Storage bucket ที่ publisher upload รูปขึ้น (ต้องมี bucket นี้อยู่แล้ว)
+  brand:                       # CI — image-prompt ฉีดเข้าทุก prompt (ว่าง = generic ไม่บังคับ)
+    primary: ""                # e.g. "#1A56DB"
+    secondary: ""              # e.g. "#F59E0B"
+    accent: ""                 # e.g. "#10B981"
+    font: ""                   # ชื่อฟอนต์แบรนด์ (สำหรับ asset ที่มี text เท่านั้น)
+    style: ""                  # e.g. "flat illustration, clean, modern, ample whitespace"
+    avoid: "no text in image, no logo, no real faces"
+  sizes:                       # ว่าง = image-prompt ดึงขนาดจากหน้าเว็บจริง (og:image:width/height)
+    cover: ""                  # e.g. "1600x900"
+    og: ""                     # e.g. "1200x630"
+    in_article: ""             # e.g. "1600x900"
 
 taxonomy:
   whitelist: []                # e.g. ["Digital Marketing", "SEO", "Paid Ads"]

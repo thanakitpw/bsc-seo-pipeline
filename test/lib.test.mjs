@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { slugify, isValidSlug, KEBAB_EN_RE } from '../shared/scripts/lib/slugify.mjs';
 import { h1Count, headingOrderViolation, links, wordCount, similarity, headings } from '../shared/scripts/lib/md.mjs';
 import { envCheck } from '../shared/scripts/lib/env-check.mjs';
+import { parseImgMeta } from '../shared/scripts/lib/img-size.mjs';
 
 test('slugify kebab-en', () => {
   assert.equal(slugify('SEO For SME 2026!', 'kebab-en'), 'seo-for-sme-2026');
@@ -55,6 +56,23 @@ test('md wordCount Thai is reasonable', () => {
 test('md similarity', () => {
   assert.ok(similarity('คู่มือ SEO สำหรับ SME', 'คู่มือ SEO สำหรับ SME ฉบับเต็ม') > 0.7);
   assert.ok(similarity('abc', 'xyz') < 0.2);
+});
+
+test('parseImgMeta extracts og:image + size (attr order agnostic)', () => {
+  const html = `<meta property="og:image" content="https://x/og.png">
+    <meta content="1200" property="og:image:width">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:image" content="https://x/tw.png">`;
+  const r = parseImgMeta(html);
+  assert.equal(r.og_image, 'https://x/og.png');
+  assert.equal(r.og_size, '1200x630');
+  assert.equal(r.twitter_image, 'https://x/tw.png');
+});
+
+test('parseImgMeta: no dimensions → og_size null, falls back to twitter image', () => {
+  const r = parseImgMeta('<meta name="twitter:image" content="https://x/t.png">');
+  assert.equal(r.og_size, null);
+  assert.equal(r.og_image, 'https://x/t.png');
 });
 
 test('envCheck: required missing → blocking', () => {
