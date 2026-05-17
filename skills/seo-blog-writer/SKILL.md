@@ -24,19 +24,25 @@ description: เขียนบทความ SEO ภาษาไทยจา�
 
 ## Workflow
 1. **Banner**
-2. **โหลด topic + voice**: อ่าน research file / slot + `config.voice` + `voice/style-notes.md` (ถ้าไม่มีไฟล์ → เตือนให้รัน seo-blog-setup; ทำต่อด้วย voice จาก config)
-3. **เติม TBD**: ถ้า config `author.name`/`image.strategy` ว่าง → AskUserQuestion → Edit config
-4. **slug**: ถ้า `slug.convention=kebab-en` → คิด **วลีอังกฤษสั้น** จากหัวข้อ (เช่น "seo tips for sme") ห้ามป้อนหัวข้อไทยตรงๆ (อักษรไทยจะถูกตัดทิ้ง); ถ้า `=thai` → ป้อนหัวข้อไทยได้. รัน `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/slugify.mjs <convention> "<phrase>"` — ถ้าสคริปต์ exit 1/เตือน ให้แก้ input แล้วรันใหม่ (อย่าใช้ slug ที่ไม่ผ่าน)
-5. **เลขลำดับ**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/next-num.mjs` → ได้ `NN` (เช่น `03`) — โฟลเดอร์บทความ = `articles/<NN>-<slug>/`
-6. **เขียน frontmatter + body** จาก `templates/article.md`:
+2. **🎯 หา "บทความถัดไป" แบบ deterministic** (สำคัญ — ทำงานข้าม session ได้): ถ้าผู้ใช้ไม่ได้ระบุหัวข้อชัด ให้ไล่ลำดับนี้
+   - อ่าน `plans/<เดือนปัจจุบัน>-plan.md` → หา slot แรกที่ status ≠ `done`
+   - ข้าม slot ที่มีโฟลเดอร์ `articles/<NN>-<slug>/` อยู่แล้ว และ slug นั้น publish แล้ว (`node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs --list-slugs`)
+   - ไม่มี plan/slot ว่าง → ดู `research/_backlog.md` แถว status `backlog` ตัวบนสุด
+   - ทั้งคู่ว่าง → หยุด ชี้ไป seo-blog-plan / seo-blog-research
+   - ได้ผู้สมัคร → **AskUserQuestion ยืนยัน** "บทความถัดไป = <X> ใช่ไหม / เลือกอื่น" (ไม่เดาเงียบ)
+3. **โหลด topic + voice**: อ่าน research file / slot ที่ยืนยัน + `config.voice` + `voice/style-notes.md` (ไม่มีไฟล์ → เตือน setup; ทำต่อด้วย voice จาก config)
+4. **เติม TBD**: ถ้า config `author.name`/`image.strategy` ว่าง → AskUserQuestion → Edit config
+5. **slug**: ถ้า `slug.convention=kebab-en` → คิด **วลีอังกฤษสั้น** จากหัวข้อ (เช่น "seo tips for sme") ห้ามป้อนหัวข้อไทยตรงๆ (อักษรไทยจะถูกตัดทิ้ง); ถ้า `=thai` → ป้อนหัวข้อไทยได้. รัน `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/slugify.mjs <convention> "<phrase>"` — ถ้าสคริปต์ exit 1/เตือน ให้แก้ input แล้วรันใหม่ (อย่าใช้ slug ที่ไม่ผ่าน)
+6. **เลขลำดับ**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/next-num.mjs` → ได้ `NN` (เช่น `03`) — โฟลเดอร์บทความ = `articles/<NN>-<slug>/`
+7. **เขียน frontmatter + body** จาก `templates/article.md`:
    - frontmatter: slug, title_th, excerpt_th, category(whitelist), tags, author_name, seo_title(≤max), seo_description(min–max), status: draft
    - **ไม่ต้องใส่ cover_image/og_image** — publisher จะ set จากไฟล์รูปในโฟลเดอร์
    - body: เขียนตาม **`references/structure-th.md`** (มาตรฐาน SEO ไทย) — บังคับ: 1×H1, keyword ใน ~100 คำแรก, H2/H3 เป็นชั้น, **มี bullet/numbered list ≥1 ชุด**, **แตกย่อหน้าจริง (เว้นบรรทัดว่างทุกย่อหน้า ~1 ย่อหน้า/120 คำ)**, ย่อหน้าสั้น (≤4 บรรทัด ไม่เกิน ~700 ตัวอักษร/ย่อหน้า), ตอบ PAA เป็น FAQ, internal link ≥2 แนะนำ 4–5 (≥1 pillar), humanize. รูป in-article `![alt](01.png)` (placeholder ได้)
-7. **save** `articles/<NN>-<slug>/<NN>-<slug>.md` ด้วย Write tool (1 โฟลเดอร์ = 1 บทความ ผู้ใช้จะเอารูปมาวางที่นี่)
-8. **pre-gate**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/seo-gate.mjs articles/<NN>-<slug>/<NN>-<slug>.md --warn`
-9. **loop แก้** จน error = 0 (warning โดยเฉพาะ `voice:` พิจารณาแก้)
-10. **review + feedback loop**: ให้ผู้ใช้รีวิวโทน → ถ้าผู้ใช้แก้/ติงเรื่องเสียง → append บรรทัดลง `voice/style-notes.md` ด้วย Edit tool (`- [วันที่] <ผิด> → <แก้เป็น> (slug)`) เพื่อรอบหน้าเรียนรู้
-11. ปิดท้าย `🔜 Next: run seo-blog-image-prompt`
+8. **save** `articles/<NN>-<slug>/<NN>-<slug>.md` ด้วย Write tool (1 โฟลเดอร์ = 1 บทความ ผู้ใช้จะเอารูปมาวางที่นี่)
+9. **pre-gate**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/seo-gate.mjs articles/<NN>-<slug>/<NN>-<slug>.md --warn`
+10. **loop แก้** จน error = 0 (warning โดยเฉพาะ `voice:` พิจารณาแก้)
+11. **review + feedback loop**: ให้ผู้ใช้รีวิวโทน → ถ้าผู้ใช้แก้/ติงเรื่องเสียง → append บรรทัดลง `voice/style-notes.md` ด้วย Edit tool (`- [วันที่] <ผิด> → <แก้เป็น> (slug)`) เพื่อรอบหน้าเรียนรู้
+12. ปิดท้าย `🔜 Next: run seo-blog-image-prompt`
 
 ## Templates
 | file | ใช้ที่ |
@@ -47,9 +53,10 @@ description: เขียนบทความ SEO ภาษาไทยจา�
 | script | step |
 |---|---|
 | `lib/env-check.mjs --banner` | 1 |
-| `lib/slugify.mjs` | 4 |
-| `lib/next-num.mjs` | 5 |
-| `seo-gate.mjs --warn` | 8 |
+| `publish.mjs --list-slugs` | 2 (เช็คว่าอันไหน publish แล้ว) |
+| `lib/slugify.mjs` | 5 |
+| `lib/next-num.mjs` | 6 |
+| `seo-gate.mjs --warn` | 9 |
 
 ## Edge Cases
 - ไม่มี research/slot → หยุด ชี้ไป seo-blog-research/plan

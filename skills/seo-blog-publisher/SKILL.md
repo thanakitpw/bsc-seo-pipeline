@@ -34,8 +34,11 @@ description: Publish บทความลง Supabase ตรง (service-role u
 3. **dry-run**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs articles/<NN>-<slug>/<NN>-<slug>.md --dry-run` → แสดง row + `images_to_upload`
 4. **ยืนยัน**: AskUserQuestion {publish จริง / แก้ก่อน} — ถ้ายังไม่ใส่รูปแต่อยากมีรูป เตือนก่อน
 5. **upsert**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/publish.mjs articles/<NN>-<slug>/<NN>-<slug>.md` → upload รูป + `{id,slug,images,warnings}`
-6. **verify**: แนะนำเช็ค row + รูปใน Storage + บทความขึ้น sitemap/route
-7. ปิดท้าย `🔜 Next: run seo-blog-fb-post` (ทำแคปชั่นแชร์ FB) → แล้ว `seo-blog-audit` (loop รอบถัดไป)
+6. **มาร์ค progress (สำคัญ — ให้ session ใหม่รู้ว่าทำถึงไหน)**: publish สำเร็จ → Edit
+   - `research/_backlog.md`: แถว slug นี้ → `status: done`
+   - `plans/<เดือน>-plan.md`: slot ของ slug นี้ → `status: done` (ถ้ามี plan)
+7. **verify**: แนะนำเช็ค row + รูปใน Storage + บทความขึ้น sitemap/route
+8. ปิดท้าย `🔜 Next: run seo-blog-fb-post` (ทำแคปชั่นแชร์ FB) → แล้ว `seo-blog-audit` (loop รอบถัดไป)
 
 ## Scripts
 | script | step |
