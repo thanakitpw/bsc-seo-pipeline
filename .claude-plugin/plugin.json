@@ -1,6 +1,6 @@
 {
   "name": "bsc-seo-pipeline",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "End-to-end SEO pipeline → Supabase: setup, site/content audit, DataForSEO research, monthly plan, Thai writing with SEO gate, and idempotent service-role publish. Generic/portable via per-project config + .env.",
   "author": { "name": "Thanakit (Best Solutions)", "email": "agency.bestsolutions@gmail.com" },
   "keywords": ["seo", "pipeline", "blog", "supabase", "dataforseo", "thai", "content", "audit", "publisher"],

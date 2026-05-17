@@ -18,10 +18,20 @@
 อ่านบทความฉบับเต็มได้เลย 👇
 {{ARTICLE_URL}}
 
-—
+.
 ปรึกษาเรื่อง {{หัวข้อ/บริการ}} ติดต่อได้ทุกช่องทาง 💬
-{{ถ้ามี}} Inbox: {{social.channels.messenger}}
-{{ถ้ามี}} Line: {{social.channels.line}}
-{{ถ้ามี}} โทร: {{social.channels.phone}}
+Inbox : {{social.channels.messenger}}
+Line : {{social.channels.line}}
+Call : {{social.channels.phone}}
+.
+{{social.hashtags join ' '}}
 
-{{social.hashtags join ' ' — เช่น #SEO #ทำเว็บ #DigitalMarketing}}
+<!-- CTA pattern บังคับ (ตามตัวอย่างผู้ใช้):
+Inbox : m.me/makewebeasy
+Line : @makewebeasy
+Call : 02-483-0999
+.
+#MakeWebEasy #Keptpoint #ระบบสะสมแต้ม #Ecommerce #LoyaltyProgram #เพิ่มยอดขาย
+— บรรทัด "." คือ spacer ของ FB (เว้นช่อง). label "Inbox :/Line :/Call :" เว้นวรรคก่อน :.
+ช่องไหน config ว่าง = ตัดบรรทัดนั้นทิ้ง ไม่ทิ้ง label เปล่า. hashtags จาก social.hashtags -->
+

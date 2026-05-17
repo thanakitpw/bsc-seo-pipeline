@@ -30,8 +30,8 @@ description: เขียนแคปชั่น Facebook teaser จากบ�
 4. **สกัดแก่น**: hook 1 อัน + 3–5 value points (อิโมจินำ) + 1 ผลลัพธ์/บทสรุปสั้น จากเนื้อบทความ
 5. **เขียนแคปชั่น** จาก `templates/fb-post.md`:
    - เว้นบรรทัดเป็นจังหวะ (FB อ่านง่าย), อิโมจินำ bullet, ไม่ใส่ markdown (FB ไม่ render)
-   - CTA "อ่านบทความฉบับเต็ม 👇" + บรรทัดลิงก์
-   - ช่องทางจาก `social.channels` (เฉพาะที่มีค่า) + `social.hashtags`
+   - CTA "อ่านบทความฉบับเต็ม 👇" + บรรทัดลิงก์ล้วน
+   - **CTA block ตาม pattern บังคับใน `references/fb-structure.md`**: `Inbox : / Line : / Call :` (เว้นวรรคก่อน `:`), บรรทัด `.` spacer, แล้ว hashtags — ช่อง config ว่าง = ตัดทั้งบรรทัด
    - ถ้า `social.max_chars` > 0 → คุมความยาวไม่เกิน
 6. **save** `articles/<NN>-<slug>/fb.md` ด้วย Write tool (ผู้ใช้ copy ไปโพสต์เอง)
 7. ปิดท้าย `🔜 Next: run seo-blog-audit` (วนรอบถัดไป)

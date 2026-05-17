@@ -8,8 +8,27 @@
 3. **Value bullets** 3–5 ข้อ อิโมจินำ (✅ 🎯 ⏰ 💬) — แต่ละข้อ "ได้อะไร" ไม่ใช่สารบัญ
 4. **ผลลัพธ์** 1–2 บรรทัด — ปลายทางที่อยากได้ แต่ **ไม่ spoil วิธีทั้งหมด** (เหลือให้กดอ่าน)
 5. **CTA อ่านต่อ** — "อ่านบทความฉบับเต็มได้เลย 👇" + บรรทัดถัดไปเป็น **ลิงก์ล้วน** (FB ดึง preview/og card เอง)
-6. **ช่องทางติดต่อ** — เฉพาะที่ config มี (Inbox/Line/โทร)
-7. **Hashtags** — จาก `social.hashtags` ท้ายสุด
+6. **CTA block (pattern บังคับ)** — รูปแบบตายตัวตามตัวอย่างผู้ใช้:
+   ```
+   ปรึกษาเรื่อง <หัวข้อ> ติดต่อได้ทุกช่องทาง 💬
+   Inbox : <social.channels.messenger>
+   Line : <social.channels.line>
+   Call : <social.channels.phone>
+   .
+   <social.hashtags คั่นด้วยช่องว่าง>
+   ```
+   - label อังกฤษ **เว้นวรรคก่อน `:`** (`Inbox :` ไม่ใช่ `Inbox:`)
+   - บรรทัด `.` เดี่ยว = spacer ของ FB (กันบรรทัดชิด) คั่นก่อน hashtags
+   - ช่องไหน config ว่าง → **ตัดทั้งบรรทัด** ไม่ทิ้ง label เปล่า
+   - hashtags จาก `social.hashtags` เท่านั้น (ไม่คิดเอง) — ว่าง = ไม่มีบรรทัด hashtags
+ตัวอย่างจริง:
+```
+Inbox : m.me/makewebeasy
+Line : @makewebeasy
+Call : 02-483-0999
+.
+#MakeWebEasy #Keptpoint #ระบบสะสมแต้ม #Ecommerce #LoyaltyProgram #เพิ่มยอดขาย
+```
 
 ## กฎเขียน
 - **ไม่ใช้ markdown** — FB ไม่ render `*` `#heading` `[](...)`; ใส่ลิงก์เป็น URL ดิบ
