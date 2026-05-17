@@ -37,7 +37,7 @@ description: เขียนบทความ SEO ภาษาไทยจา�
 7. **เขียน frontmatter + body** จาก `templates/article.md`:
    - frontmatter: slug, title_th, excerpt_th, category(whitelist), tags, author_name, seo_title(≤max), seo_description(min–max), status: draft
    - **ไม่ต้องใส่ cover_image/og_image** — publisher จะ set จากไฟล์รูปในโฟลเดอร์
-   - body: เขียนตาม **`references/structure-th.md`** (มาตรฐาน SEO ไทย) — บังคับ: 1×H1, keyword ใน ~100 คำแรก, H2/H3 เป็นชั้น, **มี bullet/numbered list ≥1 ชุด**, **ห้าม markdown table (ใช้ H3+bullet เทียบแทน — เว็บ render table ไม่ได้)**, **แตกย่อหน้าจริง (เว้นบรรทัดว่างทุกย่อหน้า ~1 ย่อหน้า/120 คำ)**, ย่อหน้าสั้น (≤4 บรรทัด ไม่เกิน ~700 ตัวอักษร/ย่อหน้า), ตอบ PAA เป็น FAQ, internal link ≥2 แนะนำ 4–5 (≥1 pillar), humanize. รูป in-article `![alt](01.png)` (placeholder ได้)
+   - body: เขียนตาม **`references/structure-th.md`** (มาตรฐาน SEO ไทย) — บังคับ: 1×H1, keyword ใน ~100 คำแรก, H2/H3 เป็นชั้น, **มี bullet/numbered list ≥1 ชุด**, **ห้าม markdown table (ใช้ H3+bullet เทียบแทน — เว็บ render table ไม่ได้)**, **แตกย่อหน้าจริงตามจังหวะใน structure-th.md §0 — 1 แนวคิด/ย่อหน้า สั้น 1–3 ประโยค คั่นบรรทัดว่างทุกย่อหน้า**, ตอบ PAA เป็น FAQ, internal link ≥2 แนะนำ 4–5 (≥1 pillar), humanize. รูป in-article `![alt](01.png)` (placeholder ได้)
 8. **save** `articles/<NN>-<slug>/<NN>-<slug>.md` ด้วย Write tool (1 โฟลเดอร์ = 1 บทความ ผู้ใช้จะเอารูปมาวางที่นี่)
 9. **pre-gate**: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/seo-gate.mjs articles/<NN>-<slug>/<NN>-<slug>.md --warn`
 10. **loop แก้** จน error = 0 (warning โดยเฉพาะ `voice:` พิจารณาแก้)
